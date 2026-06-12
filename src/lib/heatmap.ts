@@ -15,16 +15,15 @@ export interface MatchSentiment {
 }
 
 /**
- * Community sentiment per match — only for matches whose prediction window
- * has closed (revealing the crowd's picks earlier would let people copy).
+ * Community sentiment for every match with at least one prediction, open or
+ * locked — the crowd's picks are public from the first submission.
  */
 export async function getHeatmap(viewerUserId: number): Promise<MatchSentiment[]> {
-  const closedMatches = await db
+  const allMatches = await db
     .select()
     .from(matches)
-    .where(sql`${matches.kickoffUtc} - interval '1 hour' <= now()`)
     .orderBy(desc(matches.kickoffUtc));
-  if (closedMatches.length === 0) return [];
+  if (allMatches.length === 0) return [];
 
   const sentiments = await db
     .select({
@@ -44,7 +43,7 @@ export async function getHeatmap(viewerUserId: number): Promise<MatchSentiment[]
     .where(eq(predictions.userId, viewerUserId));
   const pickByMatch = new Map(viewerPicks.map((p) => [p.matchId, p]));
 
-  return closedMatches
+  return allMatches
     .map((match) => {
       const s = byMatch.get(match.id);
       const pick = pickByMatch.get(match.id);

@@ -40,7 +40,7 @@ or deleted — for humans and AI alike.
 | `/` | Personal dashboard |
 | `/matches` | Fixtures by stage, prediction forms, countdowns |
 | `/leaderboard` | The centerpiece — podium, movement, badges |
-| `/heatmap` | Crowd sentiment per match (revealed after cutoff) |
+| `/heatmap` | Live crowd sentiment per match |
 | `/stats` | Tournament statistics dashboard |
 | `/tv` | **Office TV mode** — six rotating full-screen panels, no login |
 | `/admin` | Sync controls, users & reset codes, AI picks, manual fallback |

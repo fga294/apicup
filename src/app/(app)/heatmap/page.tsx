@@ -95,14 +95,14 @@ export default async function HeatmapPage() {
         Prediction <span className="text-gold-400">heatmap</span>
       </h1>
       <p className="mt-1 text-sm text-chalk-dim">
-        How the office called each match. Crowd picks are revealed once predictions
-        close — no copying the smart money.
+        How the office is calling each match — live from the first prediction.
+        Follow the crowd or back your own read.
       </p>
 
       {sentiments.length === 0 ? (
         <p className="mt-8 rounded-2xl border border-chalk/10 bg-pitch-900/70 p-6 text-sm text-chalk-dim">
-          Nothing to show yet — sentiment appears here after the first prediction
-          window closes.
+          Nothing to show yet — sentiment appears as soon as the first prediction
+          comes in.
         </p>
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
