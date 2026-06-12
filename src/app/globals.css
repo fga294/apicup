@@ -1,26 +1,135 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Copa Carnaval broadcast palette — floodlit stadium at night */
+  --color-pitch-950: #0e0c09;
+  --color-pitch-900: #171411;
+  --color-pitch-800: #221e19;
+  --color-pitch-700: #322c25;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-chalk: #f6efe2;
+  --color-chalk-dim: #b9ae9b;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gold-300: #ffd76a;
+  --color-gold-400: #ffc53d;
+  --color-gold-500: #e3a212;
+  --color-gold-900: #4a3503;
+
+  --color-coral-300: #ff8d80;
+  --color-coral-400: #ff6b5e;
+  --color-coral-500: #ef4937;
+
+  --color-limey-300: #cdf17a;
+  --color-limey-400: #aee23e;
+  --color-limey-500: #84c421;
+
+  --color-skyx-300: #8ed9f8;
+  --color-skyx-400: #58c7f3;
+
+  --color-silver-300: #e8e8ee;
+  --color-silver-400: #c4c6cf;
+  --color-bronze-300: #e7a872;
+  --color-bronze-400: #c97f43;
+
+  --font-display: var(--font-anton);
+  --font-sans: var(--font-archivo);
+  --font-mono: var(--font-chivo-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-pitch-950);
+  color: var(--color-chalk);
+  background-image:
+    radial-gradient(1100px 480px at 50% -120px, rgba(255, 197, 61, 0.14), transparent 65%),
+    radial-gradient(900px 500px at 108% 112%, rgba(239, 73, 55, 0.09), transparent 60%),
+    radial-gradient(800px 420px at -8% 104%, rgba(174, 226, 62, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Fine film grain so large dark areas don't band on big screens */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--color-gold-400);
+  color: var(--color-pitch-950);
+}
+
+@keyframes champion-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 24px rgba(255, 197, 61, 0.28),
+      0 0 80px rgba(255, 197, 61, 0.1),
+      inset 0 0 22px rgba(255, 197, 61, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 38px rgba(255, 197, 61, 0.5),
+      0 0 120px rgba(255, 197, 61, 0.18),
+      inset 0 0 30px rgba(255, 197, 61, 0.14);
+  }
+}
+
+.champion-glow {
+  animation: champion-glow 2.6s ease-in-out infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: absolute;
+  top: 0;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: confetti-fall linear infinite;
+  pointer-events: none;
+}
+
+@keyframes ticker-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer {
+  background-image: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 240, 200, 0.35) 50%,
+    transparent 62%
+  );
+  background-size: 250% 100%;
+  animation: ticker-shimmer 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti,
+  .champion-glow,
+  .gold-shimmer {
+    animation: none;
+  }
 }

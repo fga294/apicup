@@ -17,27 +17,27 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-fuchsia-950 text-white">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-indigo-950/80 backdrop-blur">
+    <div className="min-h-screen text-chalk">
+      <header className="sticky top-0 z-40 border-b border-chalk/10 bg-pitch-950/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
           <Link href="/" className="flex items-center gap-2 font-black tracking-tight">
             <span className="text-2xl">🥇</span>
             <span>The API Cup</span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-purple-200">
+          <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-chalk-dim">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-amber-300">
+              <Link key={item.href} href={item.href} className="hover:text-gold-300">
                 {item.label}
               </Link>
             ))}
             {session.user.role === "admin" && (
-              <Link href="/admin" className="text-amber-300 hover:text-amber-200">
+              <Link href="/admin" className="text-gold-300 hover:text-gold-200">
                 Admin
               </Link>
             )}
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
-            <span className="hidden text-purple-300 sm:inline">
+            <span className="hidden text-chalk-dim sm:inline">
               {session.user.name}
             </span>
             <form
@@ -46,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 await signOut({ redirectTo: "/login" });
               }}
             >
-              <button className="rounded-lg border border-white/20 px-3 py-1 text-purple-200 transition hover:border-amber-300 hover:text-amber-300">
+              <button className="rounded-lg border border-chalk/20 px-3 py-1 text-chalk-dim transition hover:border-gold-300 hover:text-gold-300">
                 Sign out
               </button>
             </form>

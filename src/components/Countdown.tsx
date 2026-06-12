@@ -27,19 +27,19 @@ export function Countdown({ cutoffIso }: { cutoffIso: string }) {
   }, []);
 
   if (now === null) {
-    return <span className="tabular-nums text-purple-300">—</span>;
+    return <span className="tabular-nums text-chalk-dim">—</span>;
   }
 
   const remaining = new Date(cutoffIso).getTime() - now;
   if (remaining <= 0) {
-    return <span className="font-semibold text-rose-400">🔒 Locked</span>;
+    return <span className="font-semibold text-coral-400">🔒 Locked</span>;
   }
 
   const urgent = remaining < 60 * 60 * 1000;
   return (
     <span
       className={`tabular-nums font-semibold ${
-        urgent ? "animate-pulse text-rose-300" : "text-emerald-300"
+        urgent ? "animate-pulse text-coral-300" : "text-limey-300"
       }`}
     >
       ⏳ {formatRemaining(remaining)}

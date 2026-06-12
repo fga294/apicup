@@ -20,8 +20,8 @@ export default async function MatchesPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">Matches</h1>
-      <p className="mt-1 text-sm text-purple-300">
+      <h1 className="font-display text-4xl uppercase tracking-wide">Matches</h1>
+      <p className="mt-1 text-sm text-chalk-dim">
         Predictions lock exactly one hour before kickoff. One prediction per match —
         no edits, no second chances.
       </p>
@@ -31,9 +31,9 @@ export default async function MatchesPage() {
         if (stageRows.length === 0) return null;
         return (
           <section key={stage} className="mt-8">
-            <h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-amber-300">
+            <h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-gold-300">
               {STAGE_LABELS[stage]}
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-purple-300">
+              <span className="rounded-full bg-chalk/10 px-2 py-0.5 text-xs font-semibold text-chalk-dim">
                 {stageRows.length} matches
               </span>
             </h2>

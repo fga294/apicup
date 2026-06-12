@@ -25,27 +25,27 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-black tracking-tight">
+      <h1 className="font-display text-4xl uppercase tracking-wide">
         Welcome back, {session.user.name} 👋
       </h1>
-      <p className="mt-1 text-sm italic text-purple-300">
+      <p className="mt-1 text-sm italic text-chalk-dim">
         Can humans outperform the machines?
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <p className="text-xs uppercase tracking-wide text-purple-300">Your points</p>
-          <p className="mt-1 text-3xl font-black text-amber-300 tabular-nums">
+        <div className="rounded-2xl border border-chalk/10 bg-pitch-900/70 p-4">
+          <p className="text-xs uppercase tracking-wide text-chalk-dim">Your points</p>
+          <p className="mt-1 text-3xl font-black text-gold-300 tabular-nums">
             {totalPoints}
           </p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <p className="text-xs uppercase tracking-wide text-purple-300">Predictions made</p>
+        <div className="rounded-2xl border border-chalk/10 bg-pitch-900/70 p-4">
+          <p className="text-xs uppercase tracking-wide text-chalk-dim">Predictions made</p>
           <p className="mt-1 text-3xl font-black tabular-nums">{predicted.length}</p>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <p className="text-xs uppercase tracking-wide text-purple-300">Exact results</p>
-          <p className="mt-1 text-3xl font-black text-emerald-300 tabular-nums">
+        <div className="rounded-2xl border border-chalk/10 bg-pitch-900/70 p-4">
+          <p className="text-xs uppercase tracking-wide text-chalk-dim">Exact results</p>
+          <p className="mt-1 text-3xl font-black text-limey-300 tabular-nums">
             {exactCount}
           </p>
         </div>
@@ -53,10 +53,10 @@ export default async function DashboardPage() {
 
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-amber-300">
+          <h2 className="text-xl font-bold text-gold-300">
             {openUnpredicted.length > 0 ? "Waiting for your prediction" : "Predictions"}
           </h2>
-          <Link href="/matches" className="text-sm text-purple-300 hover:text-amber-300">
+          <Link href="/matches" className="text-sm text-chalk-dim hover:text-gold-300">
             All matches →
           </Link>
         </div>
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-purple-300">
+          <p className="rounded-2xl border border-chalk/10 bg-pitch-900/70 p-6 text-sm text-chalk-dim">
             Nothing open right now — you’re all caught up. New fixtures appear here
             automatically as teams qualify.
           </p>

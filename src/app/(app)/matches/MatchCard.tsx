@@ -26,7 +26,7 @@ function Team({
       <span className="text-center text-sm font-semibold leading-tight">
         {name ?? "TBD"}
       </span>
-      {code && <span className="text-[10px] text-purple-400">{code}</span>}
+      {code && <span className="text-[10px] text-chalk-dim/70">{code}</span>}
     </div>
   );
 }
@@ -37,11 +37,11 @@ export function MatchCard({ match, prediction }: MatchWithPrediction) {
   const live = match.status === "IN_PLAY" || match.status === "PAUSED";
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-white/20">
-      <div className="flex items-center justify-between text-xs text-purple-300">
+    <div className="rounded-2xl border border-chalk/10 bg-pitch-900/70 p-4 transition hover:border-chalk/20">
+      <div className="flex items-center justify-between text-xs text-chalk-dim">
         <LocalKickoff kickoffIso={match.kickoffUtc.toISOString()} />
         {live && (
-          <span className="animate-pulse rounded-full bg-emerald-500/20 px-2 py-0.5 font-bold text-emerald-300">
+          <span className="animate-pulse rounded-full bg-limey-400/20 px-2 py-0.5 font-bold text-limey-300">
             ● LIVE
           </span>
         )}
@@ -58,15 +58,15 @@ export function MatchCard({ match, prediction }: MatchWithPrediction) {
               {match.homeScore90}–{match.awayScore90}
             </span>
           ) : (
-            <span className="text-lg font-bold text-purple-400">vs</span>
+            <span className="text-lg font-bold text-chalk-dim/70">vs</span>
           )}
         </div>
         <Team name={match.awayTeam} code={match.awayTeamCode} crest={match.awayCrestUrl} />
       </div>
 
       {prediction ? (
-        <div className="mt-3 rounded-xl bg-white/5 px-3 py-2 text-center text-sm">
-          <span className="text-purple-300">Your pick: </span>
+        <div className="mt-3 rounded-xl bg-pitch-900/70 px-3 py-2 text-center text-sm">
+          <span className="text-chalk-dim">Your pick: </span>
           <span className="font-bold tabular-nums">
             {prediction.homeScore}–{prediction.awayScore}
           </span>
@@ -74,10 +74,10 @@ export function MatchCard({ match, prediction }: MatchWithPrediction) {
             <span
               className={`ml-2 rounded-full px-2 py-0.5 text-xs font-black ${
                 prediction.points === 10
-                  ? "bg-amber-400/20 text-amber-300"
+                  ? "bg-gold-400/20 text-gold-300"
                   : prediction.points === 5
-                    ? "bg-emerald-400/20 text-emerald-300"
-                    : "bg-white/10 text-purple-300"
+                    ? "bg-limey-400/20 text-limey-300"
+                    : "bg-chalk/10 text-chalk-dim"
               }`}
             >
               +{prediction.points} pts
@@ -87,7 +87,7 @@ export function MatchCard({ match, prediction }: MatchWithPrediction) {
       ) : open ? (
         <PredictionForm matchId={match.id} />
       ) : (
-        <p className="mt-3 text-center text-xs text-purple-400">
+        <p className="mt-3 text-center text-xs text-chalk-dim/70">
           {match.homeTeam
             ? finished || live
               ? "Predictions closed"
