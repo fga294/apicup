@@ -53,7 +53,11 @@ export default function LoginPage() {
         </Link>
       </p>
       <p className="mt-2 text-center text-xs text-chalk-dim/70">
-        Forgot your password? Ask an admin for a reset code.
+        Forgot your password? Ask an admin for a reset code, then{" "}
+        <Link href="/reset" className="text-gold-300 hover:underline">
+          reset it here
+        </Link>
+        .
       </p>
     </form>
   );

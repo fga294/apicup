@@ -69,12 +69,7 @@ export async function runSync(): Promise<SyncResult> {
     }
   }
 
-  const scoredPredictions = await scoreFinishedMatches();
-  let aiSlayersAwarded = 0;
-  if (scoredPredictions > 0) {
-    await takeLeaderboardSnapshot(`sync: ${scoredPredictions} predictions scored`);
-    aiSlayersAwarded = await awardAiSlayerForCompletedStages();
-  }
+  const { scoredPredictions, aiSlayersAwarded } = await settleResults("sync");
 
   await db
     .insert(appSettings)
@@ -93,6 +88,23 @@ export async function runSync(): Promise<SyncResult> {
     scoredPredictions,
     aiSlayersAwarded,
   };
+}
+
+/**
+ * Score any newly finished matches and, if anything changed, snapshot the
+ * leaderboard and award AI Slayer badges. Shared by sync and by admin result
+ * overrides so both paths settle results identically.
+ */
+export async function settleResults(
+  trigger: string,
+): Promise<{ scoredPredictions: number; aiSlayersAwarded: number }> {
+  const scoredPredictions = await scoreFinishedMatches();
+  let aiSlayersAwarded = 0;
+  if (scoredPredictions > 0) {
+    await takeLeaderboardSnapshot(`${trigger}: ${scoredPredictions} predictions scored`);
+    aiSlayersAwarded = await awardAiSlayerForCompletedStages();
+  }
+  return { scoredPredictions, aiSlayersAwarded };
 }
 
 const STALE_AFTER_MS = 3 * 60 * 1000;

@@ -9,7 +9,7 @@ export const authConfig = {
   callbacks: {
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
-      const publicPaths = ["/login", "/register", "/tv", "/api/auth", "/api/sync", "/api/tv"];
+      const publicPaths = ["/login", "/register", "/reset", "/tv", "/api/auth", "/api/sync", "/api/tv"];
       if (publicPaths.some((p) => pathname.startsWith(p))) return true;
       if (!auth?.user) return false;
       if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
