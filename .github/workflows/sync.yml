@@ -1,0 +1,19 @@
+name: Sync match data
+
+on:
+  schedule:
+    # Backstop only — the app's lazy sync keeps data fresh while anyone is
+    # watching. Every 30 min stays well inside free Actions minutes for a
+    # private repo (GitHub bills each job as a full minute).
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger sync endpoint
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SYNC_URL }}"
