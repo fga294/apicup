@@ -32,6 +32,7 @@ export default async function AdminPage() {
     { href: "/admin/users", title: "Users & reset codes", desc: "Browse accounts, issue one-time password reset codes." },
     { href: "/admin/ai", title: "AI predictions", desc: "Enter MQ-Chat's picks before each cutoff." },
     { href: "/admin/matches", title: "Matches & results", desc: "Manual fixtures and result overrides (provider fallback)." },
+    { href: "/admin/predictions", title: "All predictions", desc: "Every participant's picks per match, points and timestamps." },
   ];
 
   return (
