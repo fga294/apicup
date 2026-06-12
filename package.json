@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "db:seed": "tsx --env-file=.env.local scripts/seed.ts",
     "db:simulate": "tsx --env-file=.env.local scripts/simulate.ts",
-    "db:reset": "tsx --env-file=.env.local scripts/reset-competition.ts --yes"
+    "db:reset": "tsx --env-file=.env.local scripts/reset-competition.ts --yes",
+    "db:test-users": "tsx --env-file=.env.local scripts/test-users.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
