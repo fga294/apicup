@@ -9,32 +9,10 @@ import {
   snapshotEntries,
   users,
 } from "@/db/schema";
+import { computePoints } from "@/lib/points";
 import type { Stage } from "@/lib/providers/types";
 
-export interface Scoreline {
-  homeScore: number;
-  awayScore: number;
-}
-
-/**
- * The heart of the competition — awards points for one prediction against
- * the 90-minute result:
- *
- *   10 — exact result: correct outcome AND correct scoreline
- *    5 — correct outcome (home win / draw / away win) but wrong scoreline
- *    0 — incorrect outcome
- *
- * Examples from the competition rules:
- *   actual France 2-0 Japan, predicted 2-0 → 10
- *   actual France 2-0 Japan, predicted 4-3 → 5  (home win, wrong score)
- *   actual Canada 3-3 Turkey, predicted 1-1 → 5  (draw, wrong score)
- *   actual France 2-0 Japan, predicted 0-1 → 0
- */
-export function computePoints(prediction: Scoreline, result: Scoreline): 0 | 5 | 10 {
-  // TODO(fabricio): implement — see examples above and tests in
-  // src/lib/__tests__/scoring.test.ts (npm test to check your work).
-  throw new Error("computePoints is not implemented yet");
-}
+export { computePoints, type Scoreline } from "@/lib/points";
 
 /**
  * Awards points for every unscored prediction whose match has finished with a

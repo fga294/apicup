@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { computePoints } from "@/lib/scoring";
+import { computePoints } from "@/lib/points";
 
 // Examples straight from the competition rules in docs/Plan_APICUP.md.
 describe("computePoints", () => {
