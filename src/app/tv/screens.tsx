@@ -75,20 +75,16 @@ export function LeaderboardScreen({ data }: { data: TvData }) {
   );
 }
 
-export function TopMoversScreen({ data }: { data: TvData }) {
-  const moved = data.leaderboard.filter((e) => e.movement !== null && e.movement !== 0);
-  const gainers = [...moved].sort((a, b) => b.movement! - a.movement!).slice(0, 3);
-  const fallers = [...moved].sort((a, b) => a.movement! - b.movement!).slice(0, 3);
-
-  const Column = ({
-    title,
-    entries,
-    tone,
-  }: {
-    title: string;
-    entries: LeaderboardEntry[];
-    tone: "up" | "down";
-  }) => (
+function MoversColumn({
+  title,
+  entries,
+  tone,
+}: {
+  title: string;
+  entries: LeaderboardEntry[];
+  tone: "up" | "down";
+}) {
+  return (
     <div className="flex-1">
       <h3
         className={`mb-4 text-center font-display text-4xl uppercase ${
@@ -120,13 +116,19 @@ export function TopMoversScreen({ data }: { data: TvData }) {
       </ol>
     </div>
   );
+}
+
+export function TopMoversScreen({ data }: { data: TvData }) {
+  const moved = data.leaderboard.filter((e) => e.movement !== null && e.movement !== 0);
+  const gainers = [...moved].sort((a, b) => b.movement! - a.movement!).slice(0, 3);
+  const fallers = [...moved].sort((a, b) => a.movement! - b.movement!).slice(0, 3);
 
   return (
     <div className="mx-auto w-full max-w-6xl">
       <ScreenTitle kicker="Since the last results" title="Top movers" />
       <div className="flex gap-10">
-        <Column title="Climbing" entries={gainers} tone="up" />
-        <Column title="Falling" entries={fallers} tone="down" />
+        <MoversColumn title="Climbing" entries={gainers} tone="up" />
+        <MoversColumn title="Falling" entries={fallers} tone="down" />
       </div>
     </div>
   );

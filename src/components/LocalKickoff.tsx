@@ -1,24 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useHydrated } from "@/lib/useNow";
 
 /** Kickoff time in the viewer's timezone; server renders UTC as fallback. */
 export function LocalKickoff({ kickoffIso }: { kickoffIso: string }) {
-  const [label, setLabel] = useState(() =>
-    new Date(kickoffIso).toISOString().slice(0, 16).replace("T", " ") + " UTC",
-  );
+  const hydrated = useHydrated();
 
-  useEffect(() => {
-    setLabel(
-      new Date(kickoffIso).toLocaleString(undefined, {
+  const label = hydrated
+    ? new Date(kickoffIso).toLocaleString(undefined, {
         weekday: "short",
         month: "short",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      }),
-    );
-  }, [kickoffIso]);
+      })
+    : new Date(kickoffIso).toISOString().slice(0, 16).replace("T", " ") + " UTC";
 
-  return <time suppressHydrationWarning dateTime={kickoffIso}>{label}</time>;
+  return (
+    <time suppressHydrationWarning dateTime={kickoffIso}>
+      {label}
+    </time>
+  );
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Confetti } from "@/components/Confetti";
 import type { TvData } from "@/lib/stats";
+import { useNow } from "@/lib/useNow";
 
 import {
   AiVsHumansScreen,
@@ -28,16 +29,14 @@ const SCREENS = [
 ] as const;
 
 function Clock() {
-  const [now, setNow] = useState<Date | null>(null);
-  useEffect(() => {
-    setNow(new Date());
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
+  const now = useNow();
   return (
     <span className="font-mono text-2xl tabular-nums text-chalk-dim">
-      {now
-        ? now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })
+      {now !== null
+        ? new Date(now).toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : "--:--"}
     </span>
   );

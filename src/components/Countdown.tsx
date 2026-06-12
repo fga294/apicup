@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useNow } from "@/lib/useNow";
 
 function formatRemaining(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -18,13 +18,7 @@ function formatRemaining(ms: number): string {
  * the server to avoid hydration mismatches, then ticks client-side.
  */
 export function Countdown({ cutoffIso }: { cutoffIso: string }) {
-  const [now, setNow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setNow(Date.now());
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
+  const now = useNow();
 
   if (now === null) {
     return <span className="tabular-nums text-chalk-dim">—</span>;
