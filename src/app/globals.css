@@ -126,10 +126,24 @@ body {
   animation: ticker-shimmer 3.2s ease-in-out infinite;
 }
 
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .confetti,
   .champion-glow,
-  .gold-shimmer {
+  .gold-shimmer,
+  .ticker-scroll {
     animation: none;
   }
 }
