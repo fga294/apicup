@@ -152,7 +152,7 @@ export async function overrideResult(
 }
 
 const manualMatchSchema = z.object({
-  stage: z.enum(["LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"]),
+  stage: z.enum(["GROUP_STAGE", "LAST_32", "LAST_16", "QUARTER_FINALS", "SEMI_FINALS", "THIRD_PLACE", "FINAL"]),
   homeTeam: z.string().trim().min(1).max(40),
   awayTeam: z.string().trim().min(1).max(40),
   kickoffLocal: z.string().min(1),

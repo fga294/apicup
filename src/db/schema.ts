@@ -12,10 +12,11 @@ import {
 
 export const roleEnum = pgEnum("role", ["participant", "admin"]);
 
-// Knockout stages only — the competition starts at the Round of 32.
 // Values mirror football-data.org v4 stage codes so the provider adapter
-// can pass them through without translation.
+// can pass them through without translation. The competition scores knockout
+// stages; GROUP_STAGE exists for allowlisted warm-up/test fixtures.
 export const stageEnum = pgEnum("stage", [
+  "GROUP_STAGE",
   "LAST_32",
   "LAST_16",
   "QUARTER_FINALS",

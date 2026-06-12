@@ -6,6 +6,7 @@ import type { LeaderboardEntry } from "@/lib/leaderboard";
 import type { TvData } from "@/lib/stats";
 
 const STAGE_SHORT: Record<string, string> = {
+  GROUP_STAGE: "GRP",
   LAST_32: "R32",
   LAST_16: "R16",
   QUARTER_FINALS: "QF",

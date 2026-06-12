@@ -5,7 +5,8 @@ import type {
   Stage,
 } from "./types";
 
-const KNOCKOUT_STAGES: readonly string[] = [
+const KNOWN_STAGES: readonly string[] = [
+  "GROUP_STAGE",
   "LAST_32",
   "LAST_16",
   "QUARTER_FINALS",
@@ -103,9 +104,11 @@ export const footballDataProvider: MatchDataProvider = {
     if (!res.ok) {
       throw new Error(`football-data.org responded ${res.status}`);
     }
+    // Which matches the competition actually uses is sync's decision
+    // (knockout stages + allowlisted extras) — the provider just provides.
     const body = (await res.json()) as { matches: FdMatch[] };
     return body.matches
-      .filter((m) => KNOCKOUT_STAGES.includes(m.stage))
+      .filter((m) => KNOWN_STAGES.includes(m.stage))
       .map(mapFdMatch);
   },
 };

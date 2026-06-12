@@ -101,6 +101,7 @@ export function ManualMatchForm() {
       <label className="text-xs text-chalk-dim">
         Stage
         <select name="stage" required className={`${fieldCls} mt-1 block`}>
+          <option value="GROUP_STAGE">Group Stage (warm-up)</option>
           <option value="LAST_32">Round of 32</option>
           <option value="LAST_16">Round of 16</option>
           <option value="QUARTER_FINALS">Quarter Finals</option>

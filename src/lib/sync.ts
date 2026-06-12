@@ -19,6 +19,32 @@ export interface SyncResult {
   aiSlayersAwarded: number;
 }
 
+/** Stages the competition scores. */
+const COMPETITION_STAGES: readonly string[] = [
+  "LAST_32",
+  "LAST_16",
+  "QUARTER_FINALS",
+  "SEMI_FINALS",
+  "THIRD_PLACE",
+  "FINAL",
+];
+
+/**
+ * Provider match ids admitted outside the knockout stages — used for
+ * warm-up/test fixtures (app_settings key, comma-separated).
+ */
+async function getExtraMatchIds(): Promise<Set<string>> {
+  const row = await db.query.appSettings.findFirst({
+    where: eq(appSettings.key, "extra_provider_match_ids"),
+  });
+  return new Set(
+    (row?.value ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
+}
+
 /**
  * Pull fixtures/results from the active provider, upsert them, then score
  * whatever newly finished. Every step is idempotent, so overlapping or
@@ -26,7 +52,10 @@ export interface SyncResult {
  */
 export async function runSync(): Promise<SyncResult> {
   const provider = await getActiveProvider();
-  const fetched = await provider.fetchMatches();
+  const extraIds = await getExtraMatchIds();
+  const fetched = (await provider.fetchMatches()).filter(
+    (m) => COMPETITION_STAGES.includes(m.stage) || extraIds.has(m.providerMatchId),
+  );
 
   const existing = await db
     .select()

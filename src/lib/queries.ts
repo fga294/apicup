@@ -27,6 +27,7 @@ export async function getMatchesWithUserPrediction(
 }
 
 export const STAGE_LABELS: Record<MatchRow["stage"], string> = {
+  GROUP_STAGE: "Group Stage (warm-up)",
   LAST_32: "Round of 32",
   LAST_16: "Round of 16",
   QUARTER_FINALS: "Quarter Finals",
@@ -36,6 +37,7 @@ export const STAGE_LABELS: Record<MatchRow["stage"], string> = {
 };
 
 export const STAGE_ORDER: MatchRow["stage"][] = [
+  "GROUP_STAGE",
   "LAST_32",
   "LAST_16",
   "QUARTER_FINALS",

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."stage" ADD VALUE 'GROUP_STAGE' BEFORE 'LAST_32';
