@@ -20,7 +20,7 @@ export async function registerAction(
     return { error: "Too many attempts — try again in a minute" };
   }
   const parsed = registerSchema.safeParse({
-    username: formData.get("username"),
+    email: formData.get("email"),
     displayName: formData.get("displayName"),
     password: formData.get("password"),
   });
@@ -28,7 +28,8 @@ export async function registerAction(
     return { error: parsed.error.issues[0].message };
   }
 
-  const username = parsed.data.username.toLowerCase();
+  // The email is the login identifier, stored in the username column.
+  const username = parsed.data.email;
   const passwordHash = await bcrypt.hash(parsed.data.password, 10);
 
   const inserted = await db
@@ -42,7 +43,7 @@ export async function registerAction(
     .returning({ id: users.id });
 
   if (inserted.length === 0) {
-    return { error: "That username is already taken" };
+    return { error: "That email is already registered" };
   }
 
   // Sign the new user in and let Auth.js redirect to the dashboard.

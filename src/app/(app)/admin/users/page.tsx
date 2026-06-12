@@ -45,7 +45,7 @@ export default async function AdminUsersPage() {
               <p className="font-semibold">
                 {user.displayName}
                 <span className="ml-2 font-mono text-xs text-chalk-dim">
-                  @{user.username}
+                  {user.username}
                 </span>
                 {user.role === "admin" && (
                   <span className="ml-2 rounded border border-gold-400/40 px-1.5 py-px font-mono text-[10px] font-bold text-gold-300">

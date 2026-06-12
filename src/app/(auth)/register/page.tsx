@@ -16,16 +16,15 @@ export default function RegisterPage() {
       className="rounded-2xl bg-chalk/10 p-6 shadow-xl backdrop-blur"
     >
       <label className="block text-sm font-medium text-chalk">
-        Username
+        Email
         <input
-          name="username"
-          autoComplete="username"
+          name="email"
+          type="email"
+          autoComplete="email"
           required
-          minLength={3}
-          maxLength={20}
-          pattern="[a-zA-Z0-9_]+"
-          title="Letters, numbers and underscores only"
-          className="mt-1 w-full rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-2 text-chalk outline-none focus:border-gold-400"
+          maxLength={80}
+          placeholder="Your mq.edu.au email"
+          className="mt-1 w-full rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-2 text-chalk placeholder-chalk-dim/50 outline-none focus:border-gold-400"
         />
       </label>
       <label className="mt-4 block text-sm font-medium text-chalk">

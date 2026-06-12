@@ -26,7 +26,8 @@ or deleted — for humans and AI alike.
 
 - **Next.js 16** (App Router, TypeScript) on **Vercel**
 - **Neon Postgres** via **Drizzle ORM** (local dev runs Docker Postgres)
-- **Auth.js v5** credentials auth (username + password, bcrypt, JWT)
+- **Auth.js v5** credentials auth (email + password, bcrypt, JWT — no email
+  sending; password resets are admin-issued one-time codes)
 - **Tailwind CSS v4** + **Motion** — "Copa Carnaval" broadcast design system
 - **Vitest** for the scoring engine, provider mapping, and cutoff rules
 - Match data: **football-data.org v4** behind a provider abstraction with

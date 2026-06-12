@@ -31,12 +31,14 @@ export default function ResetPage() {
         Got a reset code from an admin? Use it here. Codes expire after 24 hours.
       </p>
       <label className="mt-4 block text-sm font-medium text-chalk">
-        Username
+        Email
         <input
           name="username"
           autoComplete="username"
           required
-          className="mt-1 w-full rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-2 text-chalk outline-none focus:border-gold-400"
+          maxLength={80}
+          placeholder="Your mq.edu.au email"
+          className="mt-1 w-full rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-2 text-chalk placeholder-chalk-dim/50 outline-none focus:border-gold-400"
         />
       </label>
       <label className="mt-4 block text-sm font-medium text-chalk">

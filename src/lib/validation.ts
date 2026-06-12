@@ -1,14 +1,17 @@
 import { z } from "zod";
 
-export const usernameSchema = z
+// Participants sign in with their email address; it is stored (lowercased)
+// in the users.username column. Format is enforced at registration only, so
+// pre-existing non-email accounts (admin, the AI) can still authenticate.
+export const emailSchema = z
   .string()
   .trim()
-  .min(3, "Username must be at least 3 characters")
-  .max(20, "Username must be at most 20 characters")
-  .regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers and underscores only");
+  .toLowerCase()
+  .max(80, "Email is too long")
+  .pipe(z.email("Enter a valid email address"));
 
 export const registerSchema = z.object({
-  username: usernameSchema,
+  email: emailSchema,
   displayName: z.string().trim().min(1, "Display name is required").max(40),
   password: z.string().min(8, "Password must be at least 8 characters").max(200),
 });

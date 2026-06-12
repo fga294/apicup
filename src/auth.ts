@@ -9,7 +9,8 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 
 const credentialsSchema = z.object({
-  username: z.string().min(1).max(40),
+  // Emails for participants; the seeded admin/AI identifiers also pass.
+  username: z.string().min(1).max(80),
   password: z.string().min(1).max(200),
 });
 

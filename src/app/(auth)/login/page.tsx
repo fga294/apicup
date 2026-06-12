@@ -16,11 +16,14 @@ export default function LoginPage() {
       className="rounded-2xl bg-chalk/10 p-6 shadow-xl backdrop-blur"
     >
       <label className="block text-sm font-medium text-chalk">
-        Username
+        Email
+        {/* type=text on purpose: the seeded admin account is not an email */}
         <input
           name="username"
           autoComplete="username"
           required
+          maxLength={80}
+          placeholder="Your mq.edu.au email"
           className="mt-1 w-full rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-2 text-chalk placeholder-chalk-dim/50 outline-none focus:border-gold-400"
         />
       </label>
