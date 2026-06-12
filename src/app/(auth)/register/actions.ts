@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { signIn } from "@/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import { rateLimitOk } from "@/lib/rateLimit";
 import { registerSchema } from "@/lib/validation";
 
 export interface RegisterState {
@@ -15,6 +16,9 @@ export async function registerAction(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  if (!(await rateLimitOk("register", 5, 60_000))) {
+    return { error: "Too many attempts — try again in a minute" };
+  }
   const parsed = registerSchema.safeParse({
     username: formData.get("username"),
     displayName: formData.get("displayName"),

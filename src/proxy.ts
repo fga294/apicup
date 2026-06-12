@@ -2,7 +2,11 @@ import NextAuth from "next-auth";
 
 import { authConfig } from "@/auth.config";
 
-export const { auth: middleware } = NextAuth(authConfig);
+const { auth } = NextAuth(authConfig);
+
+// Route protection (Next 16 "proxy" convention, formerly middleware): the
+// edge-safe authConfig's `authorized` callback decides who gets where.
+export default auth;
 
 export const config = {
   // Everything except Next.js internals and static assets.

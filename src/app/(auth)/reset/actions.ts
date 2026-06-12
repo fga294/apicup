@@ -5,6 +5,7 @@ import { and, desc, eq, gt } from "drizzle-orm";
 
 import { db } from "@/db";
 import { passwordResetRequests, users } from "@/db/schema";
+import { rateLimitOk } from "@/lib/rateLimit";
 
 export interface ResetState {
   error?: string;
@@ -19,6 +20,9 @@ export async function redeemResetCode(
   const code = String(formData.get("code") ?? "").trim();
   const newPassword = String(formData.get("newPassword") ?? "");
 
+  if (!(await rateLimitOk("reset", 5, 60_000))) {
+    return { error: "Too many attempts — try again in a minute" };
+  }
   if (!username || !code) return { error: "Username and reset code are required" };
   if (newPassword.length < 8) {
     return { error: "New password must be at least 8 characters" };
