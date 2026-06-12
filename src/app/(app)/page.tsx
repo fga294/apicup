@@ -3,15 +3,21 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { MatchCard } from "./matches/MatchCard";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { isOpenForPredictions } from "@/lib/competition";
 import { getMatchesWithUserPrediction } from "@/lib/queries";
 import { syncIfStale } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>;
+}) {
   const session = await auth();
   if (!session?.user) redirect("/login");
+  const { welcome } = await searchParams;
 
   await syncIfStale();
   const rows = await getMatchesWithUserPrediction(session.user.userId);
@@ -25,6 +31,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
+      {welcome !== undefined && <WelcomeModal />}
       <h1 className="font-display text-4xl uppercase tracking-wide">
         Welcome back, {session.user.name} 👋
       </h1>

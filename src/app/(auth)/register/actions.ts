@@ -46,11 +46,11 @@ export async function registerAction(
     return { error: "That email is already registered" };
   }
 
-  // Sign the new user in and let Auth.js redirect to the dashboard.
+  // Sign the new user in; the dashboard shows the welcome modal once.
   await signIn("credentials", {
     username,
     password: parsed.data.password,
-    redirectTo: "/",
+    redirectTo: "/?welcome=1",
   });
   return {};
 }
