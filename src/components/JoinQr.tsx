@@ -3,44 +3,26 @@
 import { QRCodeSVG } from "qrcode.react";
 
 /**
- * World-Cup-themed "scan to join" QR for Office TV mode. Dark modules on a
- * warm cream field keep contrast high (reliable scanning) while the gold
- * frame, trophy, and pennant trim carry the tournament look.
+ * Compact "scan to join" QR for Office TV mode, tucked discreetly into the
+ * corner. Dark-on-cream modules stay scannable up close; the translucent card
+ * keeps it from blocking the rotating content behind it.
  */
 export function JoinQr({ url }: { url: string }) {
   return (
-    <div className="absolute bottom-24 right-8 z-30 overflow-hidden rounded-2xl border border-gold-400/60 bg-pitch-900/90 shadow-[0_0_45px_rgba(255,197,61,0.25)] backdrop-blur">
-      {/* Pennant bunting strip */}
-      <div className="flex h-2 w-full">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <span
-            key={i}
-            className={
-              ["bg-gold-400", "bg-coral-400", "bg-limey-400", "bg-skyx-400"][i % 4]
-            }
-            style={{ width: `${100 / 12}%` }}
-          />
-        ))}
+    <div className="absolute bottom-20 right-5 z-30 flex flex-col items-center gap-1 rounded-lg border border-gold-400/25 bg-pitch-900/65 p-1.5 shadow-md backdrop-blur-sm">
+      <div className="rounded bg-[#fff7e6] p-1">
+        <QRCodeSVG
+          value={url}
+          size={72}
+          bgColor="#fff7e6"
+          fgColor="#0e0c09"
+          level="M"
+          marginSize={0}
+        />
       </div>
-
-      <div className="flex flex-col items-center gap-2 px-4 pb-3 pt-2.5">
-        <p className="flex items-center gap-1.5 font-display text-xl uppercase tracking-wide text-gold-300">
-          🏆 Scan to join
-        </p>
-        <div className="rounded-lg bg-[#fff7e6] p-2.5 shadow-inner">
-          <QRCodeSVG
-            value={url}
-            size={132}
-            bgColor="#fff7e6"
-            fgColor="#0e0c09"
-            level="M"
-            marginSize={0}
-          />
-        </div>
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-chalk-dim">
-          Predict · Compete · Beat the AI 🤖
-        </p>
-      </div>
+      <p className="font-mono text-[9px] uppercase tracking-wider text-chalk-dim/80">
+        🏆 Scan to join
+      </p>
     </div>
   );
 }
