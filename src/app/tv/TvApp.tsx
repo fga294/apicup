@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { Confetti } from "@/components/Confetti";
+import { JoinQr } from "@/components/JoinQr";
 import type { TvData } from "@/lib/stats";
 import { useNow } from "@/lib/useNow";
 
@@ -42,7 +43,7 @@ function Clock() {
   );
 }
 
-export function TvApp({ initial }: { initial: TvData }) {
+export function TvApp({ initial, loginUrl }: { initial: TvData; loginUrl: string }) {
   const [data, setData] = useState(initial);
   const [screenIndex, setScreenIndex] = useState(0);
 
@@ -77,6 +78,7 @@ export function TvApp({ initial }: { initial: TvData }) {
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       {showConfetti && <Confetti />}
+      <JoinQr url={loginUrl} />
 
       <header className="relative z-10 flex items-center gap-4 px-10 pt-6">
         <span className="text-4xl">🥇</span>
