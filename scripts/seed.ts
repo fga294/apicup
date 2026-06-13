@@ -28,7 +28,7 @@ async function main() {
     .insert(users)
     .values({
       username: AI_USERNAME,
-      displayName: "MQ-Chat: ModelOpus 4.8",
+      displayName: "MQ-Chat (Opus 4.8)",
       passwordHash: "!ai-account-no-login!",
       isAi: true,
     })
@@ -45,7 +45,7 @@ async function main() {
   }
   console.log(
     aiInserted.length > 0
-      ? "Created AI contestant: MQ-Chat: ModelOpus 4.8"
+      ? "Created AI contestant: MQ-Chat (Opus 4.8)"
       : "AI contestant already exists, skipped.",
   );
   process.exit(0);

@@ -32,7 +32,7 @@ export default async function AdminAiPage() {
         AI <span className="text-gold-400">predictions</span>
       </h1>
       <p className="mt-1 text-sm text-chalk-dim">
-        Enter MQ-Chat: ModelOpus 4.8&apos;s externally generated picks. Same rules as
+        Enter MQ-Chat (Opus 4.8)&apos;s externally generated picks. Same rules as
         humans: in before the cutoff, locked forever once submitted.
       </p>
 

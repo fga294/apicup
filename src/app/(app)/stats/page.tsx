@@ -64,7 +64,7 @@ export default async function StatsPage() {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-skyx-400/30 bg-skyx-400/5 p-5">
             <p className="font-mono text-xs uppercase tracking-widest text-skyx-300">
-              🤖 MQ-Chat: ModelOpus 4.8
+              🤖 MQ-Chat (Opus 4.8)
             </p>
             <div className="mt-3 grid grid-cols-3 gap-2 text-center">
               <div>

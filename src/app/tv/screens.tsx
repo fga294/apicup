@@ -148,7 +148,7 @@ export function AiVsHumansScreen({ data }: { data: TvData }) {
         <div className="flex-1 rounded-3xl border border-skyx-400/40 bg-skyx-400/5 p-10 text-center">
           <p className="text-7xl">🤖</p>
           <p className="mt-3 font-display text-4xl uppercase text-skyx-300">
-            MQ-Chat: ModelOpus 4.8
+            MQ-Chat (Opus 4.8)
           </p>
           <p className="mt-6 font-display text-8xl tabular-nums text-skyx-300">
             {ai.points}
