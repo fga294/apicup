@@ -214,15 +214,6 @@ function SentimentBar({ match }: { match: TvData["upcoming"][number] }) {
             ),
         )}
       </div>
-      <div className="mt-1 flex justify-between font-mono text-sm text-chalk-dim">
-        <span className="text-gold-300">
-          {segments[0].value}% {segments[0].label}
-        </span>
-        <span>{segments[1].value}% draw</span>
-        <span className="text-coral-300">
-          {segments[2].value}% {segments[2].label}
-        </span>
-      </div>
     </div>
   );
 }
@@ -247,10 +238,28 @@ export function UpcomingScreen({ data }: { data: TvData }) {
                 <span className="rounded bg-chalk/10 px-3 py-1 font-mono text-xl font-bold text-gold-300">
                   {STAGE_SHORT[m.stage] ?? m.stage}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-center font-display text-4xl uppercase">
-                  {m.homeTeam ?? "TBD"} <span className="text-chalk-dim">v</span>{" "}
-                  {m.awayTeam ?? "TBD"}
-                </span>
+                <div className="flex min-w-0 flex-1 items-center justify-center gap-3 font-display text-4xl uppercase">
+                  {m.homeCrestUrl && (
+                    // National-team crest from the data provider.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.homeCrestUrl}
+                      alt=""
+                      className="h-10 w-10 shrink-0 object-contain"
+                    />
+                  )}
+                  <span className="truncate">{m.homeTeam ?? "TBD"}</span>
+                  <span className="shrink-0 text-chalk-dim">v</span>
+                  <span className="truncate">{m.awayTeam ?? "TBD"}</span>
+                  {m.awayCrestUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.awayCrestUrl}
+                      alt=""
+                      className="h-10 w-10 shrink-0 object-contain"
+                    />
+                  )}
+                </div>
                 <span className="text-right">
                   <span className="block font-mono text-3xl">
                     <Countdown
