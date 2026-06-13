@@ -70,9 +70,12 @@ export function TvApp({ initial }: { initial: TvData }) {
 
   const Screen = SCREENS[screenIndex].component;
 
+  // Confetti is a leaderboard-only celebration; the other screens stay calm.
+  const isLeaderboard = screenIndex === 0;
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
-      <Confetti />
+      {isLeaderboard && <Confetti />}
 
       <header className="relative z-10 flex items-center gap-4 px-10 pt-6">
         <span className="text-4xl">🥇</span>
