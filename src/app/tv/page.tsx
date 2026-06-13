@@ -21,7 +21,7 @@ export default async function TvPage() {
   const host = h.get("host") ?? "localhost:3000";
   const proto =
     h.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
-  const loginUrl = `${proto}://${host}/login`;
+  const joinUrl = `${proto}://${host}/register`;
 
-  return <TvApp initial={data} loginUrl={loginUrl} />;
+  return <TvApp initial={data} joinUrl={joinUrl} />;
 }

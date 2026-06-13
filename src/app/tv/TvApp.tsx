@@ -43,7 +43,7 @@ function Clock() {
   );
 }
 
-export function TvApp({ initial, loginUrl }: { initial: TvData; loginUrl: string }) {
+export function TvApp({ initial, joinUrl }: { initial: TvData; joinUrl: string }) {
   const [data, setData] = useState(initial);
   const [screenIndex, setScreenIndex] = useState(0);
 
@@ -78,7 +78,7 @@ export function TvApp({ initial, loginUrl }: { initial: TvData; loginUrl: string
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
       {showConfetti && <Confetti />}
-      <JoinQr url={loginUrl} />
+      <JoinQr url={joinUrl} />
 
       <header className="relative z-10 flex items-center gap-4 px-10 pt-6">
         <span className="text-4xl">🥇</span>
