@@ -3,9 +3,11 @@ name: Sync match data
 on:
   schedule:
     # Backstop only — the app's lazy sync keeps data fresh while anyone is
-    # watching. Every 30 min stays well inside free Actions minutes for a
-    # private repo (GitHub bills each job as a full minute).
-    - cron: "*/30 * * * *"
+    # watching. Restricted to the active window (05:00–18:00 AEST = 19:00–07:59
+    # UTC) so the Neon database can autosuspend overnight, when no games are
+    # played and scores cannot change. Fixed to AEST = UTC+10, which holds for
+    # all of WC 2026 (no DST); revisit if reused outside the tournament.
+    - cron: "*/30 19-23,0-7 * * *"
   workflow_dispatch:
 
 jobs:

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Confetti } from "@/components/Confetti";
 import { JoinQr } from "@/components/JoinQr";
+import { isWithinActiveWindow, msUntilWindowOpens } from "@/lib/activeWindow";
 import type { TvData } from "@/lib/stats";
 import { useNow } from "@/lib/useNow";
 
@@ -56,17 +57,36 @@ export function TvApp({ initial, joinUrl }: { initial: TvData; joinUrl: string }
     return () => clearInterval(t);
   }, []);
 
-  // Poll fresh data; the endpoint also lazily syncs results during matches.
+  // Poll fresh data only inside the active window; the endpoint also lazily
+  // syncs results during matches. Outside the window no games are played, so we
+  // stop polling entirely and let the Neon database sleep until it reopens.
   useEffect(() => {
-    const t = setInterval(async () => {
-      try {
-        const res = await fetch("/api/tv", { cache: "no-store" });
-        if (res.ok) setData(await res.json());
-      } catch {
-        // Keep showing the last good data; next poll will retry.
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    async function tick() {
+      if (cancelled) return;
+      if (isWithinActiveWindow()) {
+        try {
+          const res = await fetch("/api/tv", { cache: "no-store" });
+          if (res.ok && !cancelled) setData(await res.json());
+        } catch {
+          // Keep showing the last good data; next poll will retry.
+        }
+        if (!cancelled) timer = setTimeout(tick, POLL_SECONDS * 1000);
+      } else {
+        // Sleep until the window reopens — no fetch, so the DB stays asleep.
+        // The clamp only bounds how often we re-check the clock, not DB traffic.
+        const wait = Math.min(Math.max(msUntilWindowOpens(), 60_000), 3600_000);
+        timer = setTimeout(tick, wait);
       }
-    }, POLL_SECONDS * 1000);
-    return () => clearInterval(t);
+    }
+
+    tick();
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []);
 
   const Screen = SCREENS[screenIndex].component;

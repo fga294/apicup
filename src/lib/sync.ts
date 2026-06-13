@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { appSettings, matches } from "@/db/schema";
+import { isWithinActiveWindow } from "@/lib/activeWindow";
 import { getActiveProvider } from "@/lib/providers";
 import {
   awardAiSlayerForCompletedStages,
@@ -144,6 +145,9 @@ const STALE_AFTER_MS = 3 * 60 * 1000;
  * fresh without any cron at all.
  */
 export async function syncIfStale(): Promise<void> {
+  // Outside the active window there are no games to pull, so skip even the
+  // staleness read — that keeps off-hours page loads from waking the database.
+  if (!isWithinActiveWindow()) return;
   const row = await db.query.appSettings.findFirst({
     where: eq(appSettings.key, "last_sync_at"),
   });
