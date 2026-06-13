@@ -70,12 +70,13 @@ export function TvApp({ initial }: { initial: TvData }) {
 
   const Screen = SCREENS[screenIndex].component;
 
-  // Confetti is a leaderboard-only celebration; the other screens stay calm.
-  const isLeaderboard = screenIndex === 0;
+  // Confetti is reserved for the celebratory screens; the rest stay calm.
+  const CONFETTI_SCREENS = new Set(["Leaderboard", "Golden Predictor"]);
+  const showConfetti = CONFETTI_SCREENS.has(SCREENS[screenIndex].name);
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden">
-      {isLeaderboard && <Confetti />}
+      {showConfetti && <Confetti />}
 
       <header className="relative z-10 flex items-center gap-4 px-10 pt-6">
         <span className="text-4xl">🥇</span>
@@ -124,15 +125,29 @@ export function TvApp({ initial }: { initial: TvData }) {
         </div>
         {data.recentResults.length > 0 && (
           <div className="overflow-hidden border-t border-chalk/10 pt-3">
-            <div className="ticker-scroll flex w-max gap-12 px-6">
-              {[...data.recentResults, ...data.recentResults].map((r, i) => (
-                <span key={i} className="font-mono text-xl whitespace-nowrap text-chalk-dim">
-                  <span className="text-gold-400">FT</span> {r.homeTeam}{" "}
-                  <span className="font-bold text-chalk">
-                    {r.homeScore90}–{r.awayScore90}
-                  </span>{" "}
-                  {r.awayTeam}
-                </span>
+            {/* Two full-width groups: the -50% scroll moves exactly one group,
+                so results traverse the whole screen and loop seamlessly even
+                when only a single match has finished. */}
+            <div className="ticker-scroll flex w-max">
+              {[0, 1].map((copy) => (
+                <div
+                  key={copy}
+                  aria-hidden={copy === 1}
+                  className="flex min-w-full shrink-0 justify-around gap-12 px-6"
+                >
+                  {data.recentResults.map((r, i) => (
+                    <span
+                      key={i}
+                      className="font-mono text-xl whitespace-nowrap text-chalk-dim"
+                    >
+                      <span className="text-gold-400">FT</span> {r.homeTeam}{" "}
+                      <span className="font-bold text-chalk">
+                        {r.homeScore90}–{r.awayScore90}
+                      </span>{" "}
+                      {r.awayTeam}
+                    </span>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
