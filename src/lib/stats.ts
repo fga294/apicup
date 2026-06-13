@@ -39,6 +39,10 @@ export interface UpcomingMatch {
   kickoffUtc: string;
   predictionsCount: number;
   open: boolean;
+  /** Crowd sentiment as prediction counts per outcome. */
+  homeWinPicks: number;
+  drawPicks: number;
+  awayWinPicks: number;
 }
 
 export interface RecentResult {
@@ -138,10 +142,16 @@ export async function getTvData(): Promise<TvData> {
     .limit(8);
 
   const counts = await db
-    .select({ matchId: predictions.matchId, n: sql<number>`count(*)::int` })
+    .select({
+      matchId: predictions.matchId,
+      n: sql<number>`count(*)::int`,
+      homeWin: sql<number>`count(*) filter (where ${predictions.homeScore} > ${predictions.awayScore})::int`,
+      draw: sql<number>`count(*) filter (where ${predictions.homeScore} = ${predictions.awayScore})::int`,
+      awayWin: sql<number>`count(*) filter (where ${predictions.homeScore} < ${predictions.awayScore})::int`,
+    })
     .from(predictions)
     .groupBy(predictions.matchId);
-  const countByMatch = new Map(counts.map((c) => [c.matchId, c.n]));
+  const countByMatch = new Map(counts.map((c) => [c.matchId, c]));
 
   const recentRows = await db
     .select()
@@ -153,17 +163,23 @@ export async function getTvData(): Promise<TvData> {
   return {
     generatedAt: new Date().toISOString(),
     leaderboard,
-    upcoming: upcomingRows.map((m) => ({
-      id: m.id,
-      stage: m.stage,
-      homeTeam: m.homeTeam,
-      awayTeam: m.awayTeam,
-      homeCrestUrl: m.homeCrestUrl,
-      awayCrestUrl: m.awayCrestUrl,
-      kickoffUtc: m.kickoffUtc.toISOString(),
-      predictionsCount: countByMatch.get(m.id) ?? 0,
-      open: isOpenForPredictions(m),
-    })),
+    upcoming: upcomingRows.map((m) => {
+      const c = countByMatch.get(m.id);
+      return {
+        id: m.id,
+        stage: m.stage,
+        homeTeam: m.homeTeam,
+        awayTeam: m.awayTeam,
+        homeCrestUrl: m.homeCrestUrl,
+        awayCrestUrl: m.awayCrestUrl,
+        kickoffUtc: m.kickoffUtc.toISOString(),
+        predictionsCount: c?.n ?? 0,
+        open: isOpenForPredictions(m),
+        homeWinPicks: c?.homeWin ?? 0,
+        drawPicks: c?.draw ?? 0,
+        awayWinPicks: c?.awayWin ?? 0,
+      };
+    }),
     recentResults: recentRows.map((m) => ({
       homeTeam: m.homeTeam ?? "TBD",
       awayTeam: m.awayTeam ?? "TBD",

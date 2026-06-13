@@ -186,6 +186,47 @@ export function AiVsHumansScreen({ data }: { data: TvData }) {
   );
 }
 
+function SentimentBar({ match }: { match: TvData["upcoming"][number] }) {
+  if (match.predictionsCount === 0) return null;
+  const pct = (n: number) => Math.round((n / match.predictionsCount) * 100);
+  const segments = [
+    { key: "home", label: match.homeTeam ?? "Home", value: pct(match.homeWinPicks), color: "bg-gold-400" },
+    { key: "draw", label: "Draw", value: pct(match.drawPicks), color: "bg-chalk/35" },
+    { key: "away", label: match.awayTeam ?? "Away", value: pct(match.awayWinPicks), color: "bg-coral-400" },
+  ];
+  return (
+    <div className="mt-3">
+      <div
+        className="flex h-6 overflow-hidden rounded-md"
+        role="img"
+        aria-label={`Crowd: ${segments[0].value}% home win, ${segments[1].value}% draw, ${segments[2].value}% away win`}
+      >
+        {segments.map(
+          (seg) =>
+            seg.value > 0 && (
+              <div
+                key={seg.key}
+                style={{ width: `${seg.value}%` }}
+                className={`${seg.color} flex items-center justify-center font-mono text-sm font-bold text-pitch-950`}
+              >
+                {seg.value >= 10 && `${seg.value}%`}
+              </div>
+            ),
+        )}
+      </div>
+      <div className="mt-1 flex justify-between font-mono text-sm text-chalk-dim">
+        <span className="text-gold-300">
+          {segments[0].value}% {segments[0].label}
+        </span>
+        <span>{segments[1].value}% draw</span>
+        <span className="text-coral-300">
+          {segments[2].value}% {segments[2].label}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function UpcomingScreen({ data }: { data: TvData }) {
   const next = data.upcoming.slice(0, 4);
   return (
@@ -196,31 +237,34 @@ export function UpcomingScreen({ data }: { data: TvData }) {
           No fixtures scheduled — check back soon.
         </p>
       ) : (
-        <ol className="space-y-4">
+        <ol className="space-y-3">
           {next.map((m) => (
             <li
               key={m.id}
-              className="flex items-center gap-6 rounded-2xl border border-chalk/8 bg-pitch-900/70 px-8 py-5"
+              className="rounded-2xl border border-chalk/8 bg-pitch-900/70 px-8 py-4"
             >
-              <span className="rounded bg-chalk/10 px-3 py-1 font-mono text-xl font-bold text-gold-300">
-                {STAGE_SHORT[m.stage] ?? m.stage}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-center font-display text-4xl uppercase">
-                {m.homeTeam ?? "TBD"} <span className="text-chalk-dim">v</span>{" "}
-                {m.awayTeam ?? "TBD"}
-              </span>
-              <span className="text-right">
-                <span className="block font-mono text-3xl">
-                  <Countdown
-                    cutoffIso={new Date(
-                      new Date(m.kickoffUtc).getTime() - 3600_000,
-                    ).toISOString()}
-                  />
+              <div className="flex items-center gap-6">
+                <span className="rounded bg-chalk/10 px-3 py-1 font-mono text-xl font-bold text-gold-300">
+                  {STAGE_SHORT[m.stage] ?? m.stage}
                 </span>
-                <span className="block font-mono text-lg text-chalk-dim">
-                  {m.predictionsCount} prediction{m.predictionsCount === 1 ? "" : "s"} in
+                <span className="min-w-0 flex-1 truncate text-center font-display text-4xl uppercase">
+                  {m.homeTeam ?? "TBD"} <span className="text-chalk-dim">v</span>{" "}
+                  {m.awayTeam ?? "TBD"}
                 </span>
-              </span>
+                <span className="text-right">
+                  <span className="block font-mono text-3xl">
+                    <Countdown
+                      cutoffIso={new Date(
+                        new Date(m.kickoffUtc).getTime() - 3600_000,
+                      ).toISOString()}
+                    />
+                  </span>
+                  <span className="block font-mono text-lg text-chalk-dim">
+                    {m.predictionsCount} prediction{m.predictionsCount === 1 ? "" : "s"} in
+                  </span>
+                </span>
+              </div>
+              <SentimentBar match={m} />
             </li>
           ))}
         </ol>
