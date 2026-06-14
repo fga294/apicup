@@ -135,37 +135,29 @@ export function TopMoversScreen({ data }: { data: TvData }) {
   );
 }
 
-const STAT_TONES = {
-  ai: { value: "text-skyx-300", bar: "bg-skyx-400", border: "border-skyx-400/30", bg: "bg-skyx-400/10" },
-  humans: { value: "text-gold-300", bar: "bg-gold-400", border: "border-gold-400/30", bg: "bg-gold-400/10" },
-  slain: { value: "text-coral-300", bar: "bg-coral-400", border: "border-coral-400/30", bg: "bg-coral-400/10" },
+const PILL_TONES = {
+  ai: "text-skyx-300",
+  humans: "text-gold-300",
+  slain: "text-coral-300",
 } as const;
 
-function StatBlock({
+// Subtle inline pill: a caption to the hero points, not a competing module.
+// Neutral chip (the box border/title already signal the side); dim label,
+// small colored value with tabular figures so polling doesn't shift width.
+function StatPill({
   tone,
   label,
   value,
-  rate,
 }: {
-  tone: keyof typeof STAT_TONES;
+  tone: keyof typeof PILL_TONES;
   label: string;
   value: string;
-  rate?: number | null;
 }) {
-  const t = STAT_TONES[tone];
   return (
-    <div className={`flex flex-1 flex-col items-center rounded-2xl border ${t.border} ${t.bg} px-4 py-4`}>
-      <p className="font-mono text-base uppercase tracking-[0.25em] text-chalk-dim">{label}</p>
-      <p className={`mt-1 font-display text-4xl tabular-nums ${t.value}`}>{value}</p>
-      {rate !== undefined && (
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-chalk/10">
-          <div
-            className={`h-full rounded-full ${t.bar}`}
-            style={{ width: rate === null ? "0%" : `${Math.round(rate * 100)}%` }}
-          />
-        </div>
-      )}
-    </div>
+    <span className="inline-flex items-baseline gap-2 rounded-full border border-chalk/10 bg-chalk/5 px-4 py-1.5">
+      <span className="font-mono text-sm uppercase tracking-[0.18em] text-chalk-dim">{label}</span>
+      <span className={`font-mono text-xl font-semibold tabular-nums ${PILL_TONES[tone]}`}>{value}</span>
+    </span>
   );
 }
 
@@ -188,10 +180,10 @@ export function AiVsHumansScreen({ data }: { data: TvData }) {
             {ai.points}
             <span className="ml-2 text-2xl text-chalk-dim">pts</span>
           </p>
-          <div className="mt-6 flex items-stretch gap-3">
-            <StatBlock tone="ai" label="Rank" value={`#${aiEntry?.rank ?? "—"}`} />
-            <StatBlock tone="ai" label="Hit rate" value={pct(ai.hitRate)} rate={ai.hitRate} />
-            <StatBlock tone="ai" label="Exact" value={pct(ai.exactRate)} rate={ai.exactRate} />
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+            <StatPill tone="ai" label="Rank" value={`#${aiEntry?.rank ?? "—"}`} />
+            <StatPill tone="ai" label="Hit rate" value={pct(ai.hitRate)} />
+            <StatPill tone="ai" label="Exact" value={pct(ai.exactRate)} />
           </div>
         </div>
         <div className="flex flex-col items-center justify-center">
@@ -204,10 +196,10 @@ export function AiVsHumansScreen({ data }: { data: TvData }) {
             {bestHumanPoints}
             <span className="ml-2 text-2xl text-chalk-dim">best</span>
           </p>
-          <div className="mt-6 flex items-stretch gap-3">
-            <StatBlock tone="humans" label="Hit rate" value={pct(humans.hitRate)} rate={humans.hitRate} />
-            <StatBlock tone="humans" label="Exact" value={pct(humans.exactRate)} rate={humans.exactRate} />
-            <StatBlock tone="slain" label="Slain" value={`×${aiSlayerBadges}`} />
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+            <StatPill tone="humans" label="Hit rate" value={pct(humans.hitRate)} />
+            <StatPill tone="humans" label="Exact" value={pct(humans.exactRate)} />
+            <StatPill tone="slain" label="Slain" value={`×${aiSlayerBadges}`} />
           </div>
         </div>
       </div>
