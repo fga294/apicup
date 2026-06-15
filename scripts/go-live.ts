@@ -2,24 +2,31 @@
  * Go-live: take the competition from testing into production in one safe pass.
  *
  * What it does, in order:
- *   1. Removes every test account (`test.user…`) and ALL of its dependent rows
- *      (predictions, snapshot entries, achievements, password-reset requests),
- *      leaving no orphans.
+ *   1. Removes EVERY human participant account — everyone whose role is not
+ *      `admin` and who is not the AI — together with ALL of its dependent rows
+ *      (predictions, snapshot entries, achievements, password-reset requests).
+ *      The result is a clean slate so every player starts level (0 pts, same
+ *      rank) once registration reopens.
  *   2. Imports/refreshes all cup fixtures through the existing sync pipeline
  *      (`runSync()` — the same code path as `POST /api/sync`).
  *   3. Validates the result and prints a summary.
  *
  * What it deliberately PRESERVES:
- *   - the `admin` account and the `mq-chat` AI contestant;
- *   - every match row (MQ-Chat's head-start points are stored against specific
- *     match ids, so matches are never deleted — sync only adds/updates them);
+ *   - the `admin` account and the `mq-chat` AI contestant (with the head start
+ *     it has already earned — see below);
+ *   - every match row (MQ-Chat's points are stored against specific match ids,
+ *     so matches are never deleted — sync only adds/updates them);
  *   - all leaderboard snapshots (movement arrows self-correct on the next
  *     finished match).
  *
- * Idempotent and safe to re-run: deletions are no-ops once the test users are
- * gone, sync upserts by (provider, provider_match_id), and scoring only touches
- * predictions whose `points` are still null — so MQ-Chat's already-earned points
- * are never recomputed.
+ * ⚠️  This wipes ALL human players, not just test accounts. It is the one-time
+ *     production cutover tool — do NOT run it once the live competition has real
+ *     registrants you intend to keep. The `--yes` guard prevents accidental runs.
+ *
+ * Idempotent and safe to re-run: once the slate is clean the deletions are
+ * no-ops, sync upserts by (provider, provider_match_id), and scoring only
+ * touches predictions whose `points` are still null — so MQ-Chat's already-earned
+ * points are never recomputed.
  *
  * NOTE: the Neon HTTP driver exposes no `db.transaction()` (see src/db/index.ts),
  * so — exactly like reset-competition.ts and runSync() — this script relies on
@@ -29,7 +36,7 @@
  * Production: DATABASE_URL=<neon url> FOOTBALL_DATA_TOKEN=<token> \
  *               npx tsx scripts/go-live.ts --yes
  */
-import { and, eq, inArray, isNull, like, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 
 import { db } from "../src/db";
 import {
@@ -42,8 +49,6 @@ import {
 } from "../src/db/schema";
 import { runSync } from "../src/lib/sync";
 
-/** Usernames of the throwaway accounts created by scripts/test-users.ts. */
-const TEST_USER_PATTERN = "test.user%"; // e.g. test.user1@mq.edu.au … test.userN@…
 const AI_USERNAME = "mq-chat";
 const ADMIN_USERNAME = "admin";
 
@@ -52,17 +57,17 @@ const warnings: string[] = [];
 
 async function main() {
   // ── 0. Safety guard ──────────────────────────────────────────────────────
-  // This permanently deletes accounts. Require an explicit --yes, mirroring
-  // reset-competition.ts, so it can never run by accident.
+  // This permanently deletes every human player. Require an explicit --yes,
+  // mirroring reset-competition.ts, so it can never run by accident.
   if (!process.argv.includes("--yes")) {
     console.error(
-      "This removes all test users and their data, then imports cup matches.\n" +
-        "Re-run with --yes to confirm.",
+      "This removes ALL human players and their data, then imports cup matches.\n" +
+        "Only the admin and the MQ-Chat AI are kept. Re-run with --yes to confirm.",
     );
     process.exit(1);
   }
 
-  console.log("== Go-live: cleanup + match import ==\n");
+  console.log("== Go-live: fresh-start cleanup + match import ==\n");
 
   // ── 1. Verify the accounts we must protect actually exist ────────────────
   // We never recreate or modify them here. If MQ-Chat is missing, something is
@@ -92,29 +97,24 @@ async function main() {
       `${AI_USERNAME} (id=${ai.id}, isAi=${ai.isAi}).`,
   );
 
-  // ── 2. Identify the test users ───────────────────────────────────────────
-  // Match by the well-known prefix and, belt-and-suspenders, exclude any admin
-  // or AI row so the protected accounts can never be caught by the pattern.
-  const testUsers = await db
+  // ── 2. Identify the human participants to remove ─────────────────────────
+  // Everyone who is neither an admin nor the AI. This is the whole field of
+  // human players — test accounts AND any real registrants from the soft launch
+  // — because go-live resets everybody to an equal footing.
+  const participants = await db
     .select({ id: users.id, username: users.username })
     .from(users)
-    .where(
-      and(
-        like(users.username, TEST_USER_PATTERN),
-        ne(users.role, "admin"),
-        eq(users.isAi, false),
-      ),
-    );
-  const testIds = testUsers.map((u) => u.id);
-  console.log(`\nFound ${testIds.length} test account(s) to remove.`);
-  if (testUsers.length > 0) {
-    console.log(`  ${testUsers.map((u) => u.username).join(", ")}`);
+    .where(and(ne(users.role, "admin"), eq(users.isAi, false)));
+  const participantIds = participants.map((u) => u.id);
+  console.log(`\nFound ${participantIds.length} human participant(s) to remove.`);
+  if (participants.length > 0) {
+    console.log(`  ${participants.map((u) => u.username).join(", ")}`);
   }
 
   // ── 3. Delete dependent rows, then the users themselves ──────────────────
   // All FKs are ON DELETE NO ACTION (no cascades), so children must go first,
-  // in dependency order. Each step is a no-op when testIds is empty, keeping the
-  // whole script idempotent.
+  // in dependency order. Each step is a no-op when participantIds is empty,
+  // keeping the whole script idempotent.
   const removed = {
     predictions: 0,
     snapshotEntries: 0,
@@ -123,32 +123,32 @@ async function main() {
     users: 0,
   };
 
-  if (testIds.length > 0) {
+  if (participantIds.length > 0) {
     removed.predictions = (
       await db
         .delete(predictions)
-        .where(inArray(predictions.userId, testIds))
+        .where(inArray(predictions.userId, participantIds))
         .returning({ id: predictions.id })
     ).length;
 
     removed.snapshotEntries = (
       await db
         .delete(snapshotEntries)
-        .where(inArray(snapshotEntries.userId, testIds))
+        .where(inArray(snapshotEntries.userId, participantIds))
         .returning({ userId: snapshotEntries.userId })
     ).length;
 
     removed.achievements = (
       await db
         .delete(achievements)
-        .where(inArray(achievements.userId, testIds))
+        .where(inArray(achievements.userId, participantIds))
         .returning({ id: achievements.id })
     ).length;
 
     removed.passwordResetRequests = (
       await db
         .delete(passwordResetRequests)
-        .where(inArray(passwordResetRequests.userId, testIds))
+        .where(inArray(passwordResetRequests.userId, participantIds))
         .returning({ id: passwordResetRequests.id })
     ).length;
 
@@ -156,12 +156,12 @@ async function main() {
     removed.users = (
       await db
         .delete(users)
-        .where(inArray(users.id, testIds))
+        .where(inArray(users.id, participantIds))
         .returning({ id: users.id })
     ).length;
   }
 
-  console.log("\nRemoved test data:");
+  console.log("\nRemoved participant data:");
   console.log(`  predictions ............ ${removed.predictions}`);
   console.log(`  snapshot_entries ....... ${removed.snapshotEntries}`);
   console.log(`  achievements ........... ${removed.achievements}`);
@@ -191,14 +191,14 @@ async function main() {
   // ── 5. Validation (read-only integrity checks) ───────────────────────────
   let integrityOk = true;
 
-  // 5a. No test accounts must remain.
-  const [{ n: testRemaining }] = await db
+  // 5a. No human participants must remain — only admin + AI.
+  const [{ n: participantsRemaining }] = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(users)
-    .where(like(users.username, TEST_USER_PATTERN));
-  if (testRemaining !== 0) {
+    .where(and(ne(users.role, "admin"), eq(users.isAi, false)));
+  if (participantsRemaining !== 0) {
     integrityOk = false;
-    console.error(`  ✗ ${testRemaining} test account(s) still present.`);
+    console.error(`  ✗ ${participantsRemaining} human participant(s) still present.`);
   }
 
   // 5b. No orphaned predictions — neither dangling user_id nor dangling match_id.
@@ -229,14 +229,7 @@ async function main() {
     .from(predictions)
     .where(eq(predictions.userId, ai.id));
 
-  // 5d. How many real competitors remain (non-admin, non-AI). At go-live this is
-  // expected to be 0 — everyone registers fresh from here.
-  const [{ n: participantsLeft }] = await db
-    .select({ n: sql<number>`count(*)::int` })
-    .from(users)
-    .where(and(ne(users.role, "admin"), eq(users.isAi, false)));
-
-  // 5e. Match totals (overall, by stage, finished).
+  // 5d. Match totals (overall, by stage, finished).
   const [{ n: matchTotal }] = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(matches);
@@ -253,7 +246,7 @@ async function main() {
   console.log("\n=== Summary ===");
   console.log(
     `Accounts kept: ${ADMIN_USERNAME}${admin ? "" : " (missing)"}, ` +
-      `${AI_USERNAME}. Other competitors remaining: ${participantsLeft}.`,
+      `${AI_USERNAME}. Human participants remaining: ${participantsRemaining}.`,
   );
   console.log(
     `MQ-Chat head start: ${aiStats.totalPoints} pts ` +
@@ -264,7 +257,7 @@ async function main() {
     console.log(`  ${r.stage} … ${r.n}`);
   }
   console.log(
-    `Test data removed: ${removed.users} user(s) + ` +
+    `Participant data removed: ${removed.users} user(s) + ` +
       `${removed.predictions} prediction(s) + ${removed.snapshotEntries} snapshot ` +
       `entr(ies) + ${removed.achievements} achievement(s) + ` +
       `${removed.passwordResetRequests} reset request(s).`,
