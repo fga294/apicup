@@ -12,6 +12,27 @@ function outcomeOf(home: number, away: number): "home" | "draw" | "away" {
   return "draw";
 }
 
+/** A quiet 🤖 marker showing where the MQ-Chat AI contestant landed its pick. */
+function AiPickMarker({
+  pick,
+  className = "",
+}: {
+  pick: { homeScore: number; awayScore: number };
+  className?: string;
+}) {
+  const label = `MQ-Chat's pick: ${pick.homeScore}–${pick.awayScore}`;
+  return (
+    <span
+      role="img"
+      title={label}
+      aria-label={label}
+      className={`text-[10px] leading-none opacity-90 ${className}`}
+    >
+      🤖
+    </span>
+  );
+}
+
 function SentimentCard({ s }: { s: MatchSentiment }) {
   const pct = (n: number) => Math.round((n / s.total) * 100);
   const segments = [
@@ -22,6 +43,16 @@ function SentimentCard({ s }: { s: MatchSentiment }) {
   const viewerOutcome = s.viewerPick
     ? outcomeOf(s.viewerPick.homeScore, s.viewerPick.awayScore)
     : null;
+  const aiOutcome = s.aiPick ? outcomeOf(s.aiPick.homeScore, s.aiPick.awayScore) : null;
+  // Seat the marker inside the bar when its segment is wide enough to hold a
+  // glyph; otherwise fall back to the legend so bold minority picks still show.
+  const aiSegment = aiOutcome ? segments.find((seg) => seg.key === aiOutcome) ?? null : null;
+  const aiInBar = aiSegment !== null && aiSegment.value >= 15;
+  const aiOutcomeText =
+    aiOutcome === "draw" ? "a draw" : aiOutcome === "home" ? "a home win" : "an away win";
+  const barLabel =
+    `${segments[0].value}% home win, ${segments[1].value}% draw, ${segments[2].value}% away win` +
+    (aiOutcome ? `; MQ-Chat predicts ${aiOutcomeText}` : "");
   const finished = s.match.status === "FINISHED" && s.match.homeScore90 !== null;
 
   return (
@@ -40,17 +71,17 @@ function SentimentCard({ s }: { s: MatchSentiment }) {
         </span>
       </div>
 
-      <div className="mt-4 flex h-7 overflow-hidden rounded-lg" role="img"
-        aria-label={`${segments[0].value}% home win, ${segments[1].value}% draw, ${segments[2].value}% away win`}>
+      <div className="mt-4 flex h-7 overflow-hidden rounded-lg" role="img" aria-label={barLabel}>
         {segments.map(
           (seg) =>
             seg.value > 0 && (
               <div
                 key={seg.key}
                 style={{ width: `${seg.value}%` }}
-                className={`${seg.color} flex items-center justify-center font-mono text-[11px] font-bold text-pitch-950`}
+                className={`${seg.color} flex items-center justify-center gap-1 font-mono text-[11px] font-bold text-pitch-950`}
               >
                 {seg.value >= 12 && `${seg.value}%`}
+                {aiInBar && seg.key === aiOutcome && s.aiPick && <AiPickMarker pick={s.aiPick} />}
               </div>
             ),
         )}
@@ -58,8 +89,9 @@ function SentimentCard({ s }: { s: MatchSentiment }) {
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
         {segments.map((seg) => (
-          <span key={seg.key} className={`font-semibold ${seg.text}`}>
+          <span key={seg.key} className={`inline-flex items-center gap-1 font-semibold ${seg.text}`}>
             {seg.value}% {seg.key === "draw" ? "draw" : `${seg.label} win`}
+            {!aiInBar && seg.key === aiOutcome && s.aiPick && <AiPickMarker pick={s.aiPick} />}
           </span>
         ))}
         <span className="ml-auto text-chalk-dim">
@@ -95,14 +127,15 @@ export default async function HeatmapPage() {
         Prediction <span className="text-gold-400">heatmap</span>
       </h1>
       <p className="mt-1 text-sm text-chalk-dim">
-        How the office is calling each match — live from the first prediction.
-        Follow the crowd or back your own read.
+        How the office is calling the next matches — live from the first
+        prediction. Follow the crowd or back your own read. 🤖 marks MQ-Chat&apos;s
+        pick.
       </p>
 
       {sentiments.length === 0 ? (
         <p className="mt-8 rounded-2xl border border-chalk/10 bg-pitch-900/70 p-6 text-sm text-chalk-dim">
-          Nothing to show yet — sentiment appears as soon as the first prediction
-          comes in.
+          No upcoming matches with predictions yet — check back once picks start
+          coming in.
         </p>
       ) : (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
