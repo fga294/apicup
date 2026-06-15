@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 
 import {
   createManualMatch,
   issueResetCode,
   overrideResult,
+  setDisplayName,
   setProvider,
   submitAiPrediction,
   syncNow,
@@ -48,6 +49,68 @@ export function ResetCodeButton({ userId }: { userId: number }) {
       <input type="hidden" name="userId" value={userId} />
       <button type="submit" disabled={pending} className={buttonCls}>
         {pending ? "Issuing…" : "Issue reset code"}
+      </button>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+export function RenameButton({
+  userId,
+  current,
+}: {
+  userId: number;
+  current: string;
+}) {
+  const [state, setState] = useState<AdminActionState>(initial);
+  const [editing, setEditing] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  // Call the action directly so we can collapse the row on a successful save —
+  // server-action revalidation re-renders this component without unmounting it.
+  function save(formData: FormData) {
+    startTransition(async () => {
+      const result = await setDisplayName(initial, formData);
+      setState(result);
+      if (result.ok) setEditing(false);
+    });
+  }
+
+  if (!editing)
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setState(initial); // clear any stale feedback from a previous edit
+          setEditing(true);
+        }}
+        className={buttonCls}
+      >
+        Rename
+      </button>
+    );
+
+  return (
+    <form action={save} className="flex items-center gap-2">
+      <input type="hidden" name="userId" value={userId} />
+      <input
+        name="displayName"
+        defaultValue={current}
+        maxLength={40}
+        required
+        autoFocus
+        aria-label="Display name"
+        className="rounded-lg border border-chalk/20 bg-chalk/10 px-3 py-1.5 text-sm text-chalk outline-none focus:border-gold-400"
+      />
+      <button type="submit" disabled={pending} className={buttonCls}>
+        {pending ? "Saving…" : "Save"}
+      </button>
+      <button
+        type="button"
+        onClick={() => setEditing(false)}
+        className="text-xs text-chalk-dim transition hover:text-chalk"
+      >
+        Cancel
       </button>
       <Feedback state={state} />
     </form>

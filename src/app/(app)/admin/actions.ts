@@ -18,7 +18,7 @@ import {
 } from "@/db/schema";
 import { isOpenForPredictions } from "@/lib/competition";
 import { runSync, settleResults } from "@/lib/sync";
-import { predictionSchema } from "@/lib/validation";
+import { displayNameSchema, predictionSchema } from "@/lib/validation";
 
 export interface AdminActionState {
   error?: string;
@@ -65,6 +65,30 @@ export async function issueResetCode(
 
   revalidatePath("/admin/users");
   return { ok: true, secret: `${user.username} → ${code}` };
+}
+
+/** Rename a user's display name — a pure label, safe to change for any account. */
+export async function setDisplayName(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  if (!(await requireAdmin())) return { error: "Admin only" };
+
+  const userId = Number(formData.get("userId"));
+  const parsed = displayNameSchema.safeParse(formData.get("displayName"));
+  if (!Number.isInteger(userId) || !parsed.success) {
+    return { error: "Enter a display name of 1–40 characters" };
+  }
+
+  const updated = await db
+    .update(users)
+    .set({ displayName: parsed.data })
+    .where(eq(users.id, userId))
+    .returning({ id: users.id });
+  if (updated.length === 0) return { error: "User not found" };
+
+  revalidatePath("/admin/users");
+  return { ok: true };
 }
 
 /** Enter a prediction on behalf of the AI contestant. Same rules as humans. */

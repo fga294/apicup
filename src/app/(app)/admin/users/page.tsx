@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { predictions, users } from "@/db/schema";
 import { LocalKickoff } from "@/components/LocalKickoff";
 
-import { ResetCodeButton } from "../AdminForms";
+import { RenameButton, ResetCodeButton } from "../AdminForms";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +63,10 @@ export default async function AdminUsersPage() {
                 {predictionCount} prediction{predictionCount === 1 ? "" : "s"}
               </p>
             </div>
-            <div className="ml-auto">{!user.isAi && <ResetCodeButton userId={user.id} />}</div>
+            <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
+              <RenameButton userId={user.id} current={user.displayName} />
+              {!user.isAi && <ResetCodeButton userId={user.id} />}
+            </div>
           </li>
         ))}
       </ul>

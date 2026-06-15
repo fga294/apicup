@@ -10,9 +10,15 @@ export const emailSchema = z
   .max(80, "Email is too long")
   .pipe(z.email("Enter a valid email address"));
 
+export const displayNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Display name is required")
+  .max(40);
+
 export const registerSchema = z.object({
   email: emailSchema,
-  displayName: z.string().trim().min(1, "Display name is required").max(40),
+  displayName: displayNameSchema,
   password: z.string().min(8, "Password must be at least 8 characters").max(200),
 });
 
