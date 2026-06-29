@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, asc, eq, gt, isNotNull, ne, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import { achievements, matches, predictions, users } from "@/db/schema";
@@ -108,12 +108,15 @@ async function getStats(leaderboard: LeaderboardEntry[]): Promise<TournamentStat
     .from(achievements)
     .where(eq(achievements.type, "ai_slayer"));
 
+  // "Matches played" counts the knockout competition only — the group stage was
+  // a warm-up, so the tally starts from the Round of 32 (LAST_32) onward.
   const [matchTotals] = await db
     .select({
       total: sql<number>`count(*)::int`,
       finished: sql<number>`count(*) filter (where ${matches.status} = 'FINISHED')::int`,
     })
-    .from(matches);
+    .from(matches)
+    .where(ne(matches.stage, "GROUP_STAGE"));
 
   const humans = leaderboard.filter((e) => !e.isAi);
   return {

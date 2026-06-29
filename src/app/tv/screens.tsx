@@ -2,7 +2,6 @@
 
 import { Countdown } from "@/components/Countdown";
 import { MovementChip } from "@/components/leaderboard/MovementChip";
-import type { LeaderboardEntry } from "@/lib/leaderboard";
 import type { TvData } from "@/lib/stats";
 
 const STAGE_SHORT: Record<string, string> = {
@@ -76,61 +75,73 @@ export function LeaderboardScreen({ data }: { data: TvData }) {
   );
 }
 
-function MoversColumn({
-  title,
-  entries,
-  tone,
-}: {
-  title: string;
-  entries: LeaderboardEntry[];
-  tone: "up" | "down";
-}) {
-  return (
-    <div className="flex-1">
-      <h3
-        className={`mb-4 text-center font-display text-4xl uppercase ${
-          tone === "up" ? "text-limey-300" : "text-coral-300"
-        }`}
-      >
-        {title}
-      </h3>
-      <ol className="space-y-3">
-        {entries.length === 0 && (
-          <p className="text-center text-2xl text-chalk-dim">No movement yet</p>
-        )}
-        {entries.map((e) => (
-          <li
-            key={e.userId}
-            className="flex items-center gap-4 rounded-2xl border border-chalk/8 bg-pitch-900/70 px-6 py-4"
-          >
-            <span className={`font-display text-5xl tabular-nums ${tone === "up" ? "text-limey-300" : "text-coral-300"}`}>
-              {tone === "up" ? "▲" : "▼"} {Math.abs(e.movement!)}
-            </span>
-            <span className="min-w-0 truncate font-display text-3xl uppercase">
-              {e.displayName}
-            </span>
-            <span className="ml-auto font-mono text-2xl text-chalk-dim">
-              now #{e.rank}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-export function TopMoversScreen({ data }: { data: TvData }) {
-  const moved = data.leaderboard.filter((e) => e.movement !== null && e.movement !== 0);
-  const gainers = [...moved].sort((a, b) => b.movement! - a.movement!).slice(0, 3);
-  const fallers = [...moved].sort((a, b) => a.movement! - b.movement!).slice(0, 3);
+export function ExactScoreScreen({ data }: { data: TvData }) {
+  // Rank by the raw count of exact-scoreline hits (predictions worth 10 pts).
+  // Deliberately distinct from the Golden Predictor screen, which ranks by
+  // exact-score *rate* (%). Ties break toward a higher rate, then more points.
+  const ranked = data.leaderboard
+    .filter((e) => e.exactCount > 0)
+    .sort(
+      (a, b) =>
+        b.exactCount - a.exactCount ||
+        (b.exactRate ?? 0) - (a.exactRate ?? 0) ||
+        b.points - a.points,
+    )
+    .slice(0, 8);
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <ScreenTitle kicker="Since the last results" title="Top movers" />
-      <div className="flex gap-10">
-        <MoversColumn title="Climbing" entries={gainers} tone="up" />
-        <MoversColumn title="Falling" entries={fallers} tone="down" />
-      </div>
+    <div className="mx-auto w-full max-w-4xl">
+      <ScreenTitle kicker="Bullseyes — exact scorelines nailed" title="🎯 Exact Score" />
+      {ranked.length === 0 ? (
+        <div className="rounded-3xl border border-chalk/8 bg-pitch-900/70 px-10 py-20 text-center">
+          <p className="animate-pulse text-9xl">🎯</p>
+          <p className="mt-8 font-display text-5xl uppercase tracking-wide">No bullseyes yet</p>
+          <p className="mt-4 font-mono text-2xl text-chalk-dim">
+            Be the first to nail an exact scoreline.
+          </p>
+        </div>
+      ) : (
+        <ol className="space-y-3">
+          {ranked.map((e, i) => (
+            <li
+              key={e.userId}
+              className={`flex items-center gap-6 rounded-2xl border px-8 py-4 ${
+                i === 0
+                  ? "champion-glow border-gold-400/60 bg-gold-400/10"
+                  : "border-chalk/8 bg-pitch-900/70"
+              }`}
+            >
+              <span
+                className={`w-14 text-center font-display tabular-nums ${
+                  i === 0 ? "text-5xl" : "text-4xl text-chalk-dim"
+                }`}
+              >
+                {i === 0 ? "🎯" : i + 1}
+              </span>
+              <span className="min-w-0 truncate font-display text-4xl uppercase">
+                {e.displayName}
+              </span>
+              {e.isAi && (
+                <span className="rounded border border-skyx-400/40 px-2 py-0.5 font-mono text-lg font-bold text-skyx-300">
+                  AI
+                </span>
+              )}
+              <span aria-hidden className="mx-2 flex-1 border-b-2 border-dotted border-chalk/15" />
+              <span
+                className={`font-display text-6xl tabular-nums ${
+                  i === 0 ? "text-gold-300" : "text-gold-400"
+                }`}
+              >
+                {e.exactCount}
+                <span className="ml-2 text-3xl">🎯</span>
+              </span>
+              <span className="w-40 text-right font-mono text-lg text-chalk-dim">
+                of {e.predictionsScored} scored
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
