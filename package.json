@@ -17,7 +17,9 @@
     "db:reset": "tsx --env-file=.env.local scripts/reset-competition.ts --yes",
     "db:test-users": "tsx --env-file=.env.local scripts/test-users.ts",
     "db:go-live": "tsx --env-file=.env.local scripts/go-live.ts --yes",
-    "db:add-group-stage": "tsx --env-file=.env.local scripts/add-group-stage.ts"
+    "db:add-group-stage": "tsx --env-file=.env.local scripts/add-group-stage.ts",
+    "db:reset-group-stage": "tsx --env-file=.env.local scripts/reset-group-stage.ts",
+    "db:ai-r32-picks": "tsx --env-file=.env.local scripts/ai-r32-picks.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
