@@ -90,10 +90,15 @@ function PodiumRow({ entry, index }: { entry: LeaderboardEntry; index: number })
           aria-hidden
           className="mx-1 hidden flex-1 border-b-2 border-dotted border-chalk/15 sm:block"
         />
-        <p className={`ml-auto font-display tabular-nums ${style.points} ${style.accent}`}>
-          {entry.points}
-          <span className="ml-1 text-sm text-chalk-dim">pts</span>
-        </p>
+        <div className="ml-auto text-right">
+          <p className={`font-display tabular-nums ${style.points} ${style.accent}`}>
+            {entry.points}
+            <span className="ml-1 text-sm text-chalk-dim">pts</span>
+          </p>
+          <p className="font-mono text-xs text-chalk-dim" title="Exact scorelines — the points tie-breaker">
+            {entry.exactCount} exact
+          </p>
+        </div>
       </div>
     </motion.li>
   );
@@ -118,9 +123,15 @@ function StandardRow({ entry, index }: { entry: LeaderboardEntry; index: number 
         className="mx-1 hidden flex-1 border-b border-dotted border-chalk/10 sm:block"
       />
       <MovementChip movement={entry.movement} />
-      <p className="w-20 text-right font-mono text-lg font-bold tabular-nums">
-        {entry.points}
+      <p
+        className="text-right font-mono tabular-nums"
+        title="Exact scorelines — the points tie-breaker"
+      >
+        <span className="text-lg font-bold">{entry.points}</span>
         <span className="ml-1 text-xs text-chalk-dim">pts</span>
+        <span className="ml-2 text-xs font-normal text-chalk-dim">
+          · {entry.exactCount} exact
+        </span>
       </p>
     </motion.li>
   );

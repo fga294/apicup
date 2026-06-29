@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -11,8 +11,10 @@ import {
 } from "@/db/schema";
 import { computePoints } from "@/lib/points";
 import type { Stage } from "@/lib/providers/types";
+import { rankStandings, type Standing } from "@/lib/standings";
 
 export { computePoints, type Scoreline } from "@/lib/points";
+export type { Standing };
 
 /**
  * Awards points for every unscored prediction whose match has finished with a
@@ -59,12 +61,6 @@ export async function scoreFinishedMatches(): Promise<number> {
   return unscored.length;
 }
 
-export interface Standing {
-  userId: number;
-  rank: number;
-  points: number;
-}
-
 /** Total points per user (everyone appears, including the AI, even on 0). */
 export async function computeStandings(): Promise<Standing[]> {
   const rows = await db
@@ -72,22 +68,15 @@ export async function computeStandings(): Promise<Standing[]> {
       userId: users.id,
       displayName: users.displayName,
       points: sql<number>`coalesce(sum(${predictions.points}), 0)::int`,
+      exactCount: sql<number>`count(*) filter (where ${predictions.points} = 10)::int`,
     })
     .from(users)
     .leftJoin(predictions, eq(predictions.userId, users.id))
-    .groupBy(users.id)
-    .orderBy(sql`coalesce(sum(${predictions.points}), 0) desc`, asc(users.displayName));
+    .groupBy(users.id);
 
-  // Competition ranking: equal points share a rank (1, 2, 2, 4...).
-  let rank = 0;
-  let prevPoints = Number.NaN;
-  return rows.map((row, i) => {
-    if (row.points !== prevPoints) {
-      rank = i + 1;
-      prevPoints = row.points;
-    }
-    return { userId: row.userId, rank, points: row.points };
-  });
+  // Ordering + ranking (points, then exact-score count as the tie-break) lives
+  // in the pure, unit-tested rankStandings() so the rule has one clear home.
+  return rankStandings(rows);
 }
 
 export async function takeLeaderboardSnapshot(reason: string): Promise<void> {

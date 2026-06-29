@@ -64,9 +64,14 @@ export function LeaderboardScreen({ data }: { data: TvData }) {
             <span className="scale-125">
               <MovementChip movement={e.movement} />
             </span>
-            <span className={`font-display tabular-nums ${i === 0 ? "text-6xl text-gold-300" : i < 3 ? "text-5xl" : "text-4xl"}`}>
-              {e.points}
-              <span className="ml-2 text-xl text-chalk-dim">pts</span>
+            <span className="text-right">
+              <span className={`block font-display tabular-nums ${i === 0 ? "text-6xl text-gold-300" : i < 3 ? "text-5xl" : "text-4xl"}`}>
+                {e.points}
+                <span className="ml-2 text-xl text-chalk-dim">pts</span>
+              </span>
+              <span className="block font-mono text-base text-chalk-dim">
+                {e.exactCount} exact
+              </span>
             </span>
           </li>
         ))}
