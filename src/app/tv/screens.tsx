@@ -75,77 +75,6 @@ export function LeaderboardScreen({ data }: { data: TvData }) {
   );
 }
 
-export function ExactScoreScreen({ data }: { data: TvData }) {
-  // Rank by the raw count of exact-scoreline hits (predictions worth 10 pts).
-  // Deliberately distinct from the Golden Predictor screen, which ranks by
-  // exact-score *rate* (%). Ties break toward a higher rate, then more points.
-  const ranked = data.leaderboard
-    .filter((e) => e.exactCount > 0)
-    .sort(
-      (a, b) =>
-        b.exactCount - a.exactCount ||
-        (b.exactRate ?? 0) - (a.exactRate ?? 0) ||
-        b.points - a.points,
-    )
-    .slice(0, 8);
-
-  return (
-    <div className="mx-auto w-full max-w-4xl">
-      <ScreenTitle kicker="Bullseyes — exact scorelines nailed" title="🎯 Exact Score" />
-      {ranked.length === 0 ? (
-        <div className="rounded-3xl border border-chalk/8 bg-pitch-900/70 px-10 py-20 text-center">
-          <p className="animate-pulse text-9xl">🎯</p>
-          <p className="mt-8 font-display text-5xl uppercase tracking-wide">No bullseyes yet</p>
-          <p className="mt-4 font-mono text-2xl text-chalk-dim">
-            Be the first to nail an exact scoreline.
-          </p>
-        </div>
-      ) : (
-        <ol className="space-y-3">
-          {ranked.map((e, i) => (
-            <li
-              key={e.userId}
-              className={`flex items-center gap-6 rounded-2xl border px-8 py-4 ${
-                i === 0
-                  ? "champion-glow border-gold-400/60 bg-gold-400/10"
-                  : "border-chalk/8 bg-pitch-900/70"
-              }`}
-            >
-              <span
-                className={`w-14 text-center font-display tabular-nums ${
-                  i === 0 ? "text-5xl" : "text-4xl text-chalk-dim"
-                }`}
-              >
-                {i === 0 ? "🎯" : i + 1}
-              </span>
-              <span className="min-w-0 truncate font-display text-4xl uppercase">
-                {e.displayName}
-              </span>
-              {e.isAi && (
-                <span className="rounded border border-skyx-400/40 px-2 py-0.5 font-mono text-lg font-bold text-skyx-300">
-                  AI
-                </span>
-              )}
-              <span aria-hidden className="mx-2 flex-1 border-b-2 border-dotted border-chalk/15" />
-              <span
-                className={`font-display text-6xl tabular-nums ${
-                  i === 0 ? "text-gold-300" : "text-gold-400"
-                }`}
-              >
-                {e.exactCount}
-                <span className="ml-2 text-3xl">🎯</span>
-              </span>
-              <span className="w-40 text-right font-mono text-lg text-chalk-dim">
-                of {e.predictionsScored} scored
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </div>
-  );
-}
-
 const PILL_TONES = {
   ai: "text-skyx-300",
   humans: "text-gold-300",
@@ -324,42 +253,70 @@ export function UpcomingScreen({ data }: { data: TvData }) {
 }
 
 export function GoldenPredictorScreen({ data }: { data: TvData }) {
-  const candidates = data.leaderboard
-    .filter((e) => e.exactRate !== null && e.predictionsScored > 0)
+  // Merged view (absorbs the former standalone "Exact Score" screen): ranks
+  // players by how many exact scorelines they've nailed (volume), then by
+  // exact-score rate, then points — and shows both the count (🎯) and the
+  // rate (%). Note the ⭐ badge on the Leaderboard still tracks the best *rate*,
+  // so the leader here can differ from that badge holder.
+  const ranked = data.leaderboard
+    .filter((e) => e.exactCount > 0)
     .sort(
       (a, b) =>
-        b.exactRate! - a.exactRate! || b.exactCount - a.exactCount || b.points - a.points,
+        b.exactCount - a.exactCount ||
+        (b.exactRate ?? 0) - (a.exactRate ?? 0) ||
+        b.points - a.points,
     )
-    .slice(0, 5);
+    .slice(0, 8);
 
   return (
     <div className="mx-auto w-full max-w-4xl">
-      <ScreenTitle kicker="Sharpest eye in the office" title="⭐ Golden Predictor" />
-      {candidates.length === 0 ? (
-        <p className="text-center text-3xl text-chalk-dim">
-          No scored predictions yet — the title is up for grabs.
-        </p>
+      <ScreenTitle kicker="Most exact scorelines nailed" title="⭐ Golden Predictor" />
+      {ranked.length === 0 ? (
+        <div className="rounded-3xl border border-chalk/8 bg-pitch-900/70 px-10 py-20 text-center">
+          <p className="animate-pulse text-9xl">🎯</p>
+          <p className="mt-8 font-display text-5xl uppercase tracking-wide">No bullseyes yet</p>
+          <p className="mt-4 font-mono text-2xl text-chalk-dim">
+            Nail an exact scoreline to claim the crown.
+          </p>
+        </div>
       ) : (
         <ol className="space-y-3">
-          {candidates.map((e, i) => (
+          {ranked.map((e, i) => (
             <li
               key={e.userId}
               className={`flex items-center gap-6 rounded-2xl border px-8 py-4 ${
                 i === 0
-                  ? "border-gold-400/60 bg-gold-400/10"
+                  ? "champion-glow border-gold-400/60 bg-gold-400/10"
                   : "border-chalk/8 bg-pitch-900/70"
               }`}
             >
-              <span className="font-display text-4xl">{i === 0 ? "⭐" : i + 1}</span>
+              <span
+                className={`w-14 text-center font-display tabular-nums ${
+                  i === 0 ? "text-5xl" : "text-4xl text-chalk-dim"
+                }`}
+              >
+                {i === 0 ? "🎯" : i + 1}
+              </span>
               <span className="min-w-0 truncate font-display text-4xl uppercase">
                 {e.displayName}
               </span>
+              {e.isAi && (
+                <span className="rounded border border-skyx-400/40 px-2 py-0.5 font-mono text-lg font-bold text-skyx-300">
+                  AI
+                </span>
+              )}
               <span aria-hidden className="mx-2 flex-1 border-b-2 border-dotted border-chalk/15" />
-              <span className={`font-display text-5xl tabular-nums ${i === 0 ? "text-gold-300" : ""}`}>
-                {Math.round(e.exactRate! * 100)}%
+              <span
+                className={`font-display text-6xl tabular-nums ${
+                  i === 0 ? "text-gold-300" : "text-gold-400"
+                }`}
+              >
+                {e.exactCount}
+                <span className="ml-2 text-3xl">🎯</span>
               </span>
-              <span className="w-44 text-right font-mono text-xl text-chalk-dim">
-                {e.exactCount} exact / {e.predictionsScored}
+              <span className="w-44 text-right font-mono text-lg text-chalk-dim">
+                {Math.round(e.exactRate! * 100)}% rate
+                <span className="block">of {e.predictionsScored} scored</span>
               </span>
             </li>
           ))}

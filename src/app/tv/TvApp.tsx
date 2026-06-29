@@ -11,7 +11,6 @@ import { useNow } from "@/lib/useNow";
 
 import {
   AiVsHumansScreen,
-  ExactScoreScreen,
   FunStatsScreen,
   GoldenPredictorScreen,
   LeaderboardScreen,
@@ -23,7 +22,6 @@ const POLL_SECONDS = 45;
 
 const SCREENS = [
   { name: "Leaderboard", component: LeaderboardScreen },
-  { name: "Exact Score", component: ExactScoreScreen },
   { name: "AI vs Humans", component: AiVsHumansScreen },
   { name: "Upcoming", component: UpcomingScreen },
   { name: "Golden Predictor", component: GoldenPredictorScreen },
