@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -9,17 +9,21 @@ import {
   snapshotEntries,
   users,
 } from "@/db/schema";
-import { computePoints } from "@/lib/points";
 import type { Stage } from "@/lib/providers/types";
+import { reconcilePoints } from "@/lib/rescore";
 import { rankStandings, type Standing } from "@/lib/standings";
 
 export { computePoints, type Scoreline } from "@/lib/points";
 export type { Standing };
 
 /**
- * Awards points for every unscored prediction whose match has finished with a
- * 90-minute result. Idempotent: already-scored predictions are never touched,
- * so it is safe to call on every sync.
+ * Reconciles points for every prediction on a finished match against its
+ * current 90-minute result, writing only those whose stored value is wrong.
+ * Idempotent (a settled match with correct points yields zero writes) and
+ * self-healing: if a result is later corrected — the provider backfilling the
+ * 90' score after extra time, or an admin override — the affected points follow
+ * it instead of staying frozen at their first, possibly-wrong value. Returns the
+ * number of predictions whose points changed.
  */
 export async function scoreFinishedMatches(): Promise<number> {
   const finished = await db
@@ -32,33 +36,30 @@ export async function scoreFinishedMatches(): Promise<number> {
     .where(and(eq(matches.status, "FINISHED"), sql`${matches.homeScore90} is not null`));
 
   if (finished.length === 0) return 0;
-  const resultByMatch = new Map(finished.map((m) => [m.id, m]));
+  const results = new Map(
+    finished.map((m) => [m.id, { homeScore90: m.homeScore90!, awayScore90: m.awayScore90! }]),
+  );
 
-  const unscored = await db
-    .select()
+  const rows = await db
+    .select({
+      id: predictions.id,
+      matchId: predictions.matchId,
+      homeScore: predictions.homeScore,
+      awayScore: predictions.awayScore,
+      points: predictions.points,
+    })
     .from(predictions)
-    .where(
-      and(
-        isNull(predictions.points),
-        inArray(
-          predictions.matchId,
-          finished.map((m) => m.id),
-        ),
-      ),
-    );
+    .where(inArray(predictions.matchId, [...results.keys()]));
 
-  for (const p of unscored) {
-    const result = resultByMatch.get(p.matchId)!;
-    const points = computePoints(
-      { homeScore: p.homeScore, awayScore: p.awayScore },
-      { homeScore: result.homeScore90!, awayScore: result.awayScore90! },
-    );
+  const corrections = reconcilePoints(results, rows);
+  const scoredAt = new Date();
+  for (const c of corrections) {
     await db
       .update(predictions)
-      .set({ points, scoredAt: new Date() })
-      .where(eq(predictions.id, p.id));
+      .set({ points: c.points, scoredAt })
+      .where(eq(predictions.id, c.id));
   }
-  return unscored.length;
+  return corrections.length;
 }
 
 /** Total points per user (everyone appears, including the AI, even on 0). */
