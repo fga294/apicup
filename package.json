@@ -20,7 +20,8 @@
     "db:add-group-stage": "tsx --env-file=.env.local scripts/add-group-stage.ts",
     "db:reset-group-stage": "tsx --env-file=.env.local scripts/reset-group-stage.ts",
     "db:ai-r32-picks": "tsx --env-file=.env.local scripts/ai-r32-picks.ts",
-    "db:rescore-finished": "tsx --env-file=.env.local scripts/rescore-finished.ts"
+    "db:rescore-finished": "tsx --env-file=.env.local scripts/rescore-finished.ts",
+    "db:ai-l16-picks": "tsx --env-file=.env.local scripts/ai-l16-picks.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
